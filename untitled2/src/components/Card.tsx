@@ -1,8 +1,9 @@
+// components/Card.tsx
 import type { ReactNode } from 'react';
 
 type CardProps = {
     title: string;
-    children: ReactNode;
+    children: ReactNode;   // всё, что между <Card>...</Card>
 };
 
 function Card({ title, children }: CardProps) {
