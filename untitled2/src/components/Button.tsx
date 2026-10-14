@@ -1,5 +1,4 @@
-// components/Button.tsx
-import type { ReactNode } from 'react';
+import type {ReactNode} from 'react';
 
 type Variant = 'primary' | 'secondary' | 'danger';
 
@@ -10,7 +9,7 @@ type ButtonProps = {
     disabled?: boolean;
 };
 
-// Словарь цветов
+
 const colors: Record<Variant, string> = {
     primary: '#3b82f6',
     secondary: '#6b7280',
