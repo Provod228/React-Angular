@@ -1,122 +1,73 @@
-import { useState } from 'react'
-import heroImg from './assets/hero.png'
-import reactLogo from './assets/react.svg'
-import viteLogo from './assets/vite.svg'
-import './App.css'
+import { useLocalStorage } from './hooks/useLocalStorage';
+import TodoForm from './components/TodoForm';
+import TodoItem from './components/TodoItem';
+
+const STORAGE_KEY = 'todos-v1';
 
 function App() {
-  const [count, setCount] = useState(0)
+  // 🔑 Главное: состояние живёт в localStorage автоматически
+  const [todos, setTodos] = useLocalStorage(STORAGE_KEY, []);
+
+  function addTodo(text) {
+    const newTodo = {
+      id: crypto.randomUUID(), // современный способ уникального id
+      text,
+      done: false,
+    };
+    setTodos((prev) => [...prev, newTodo]);
+  }
+
+  function toggleTodo(id) {
+    setTodos((prev) =>
+        prev.map((t) => (t.id === id ? { ...t, done: !t.done } : t))
+    );
+  }
+
+  function deleteTodo(id) {
+    setTodos((prev) => prev.filter((t) => t.id !== id));
+  }
+
+  function clearAll() {
+    if (confirm('Удалить все задачи?')) {
+      setTodos([]); // хук сам очистит localStorage
+    }
+  }
+
+  const doneCount = todos.filter((t) => t.done).length;
 
   return (
-    <>
-      <section id="center">
-        <div className="hero">
-          <img src={heroImg} className="base" width="170" height="179" alt="" />
-          <img src={reactLogo} className="framework" alt="React logo" />
-          <img src={viteLogo} className="vite" alt="Vite logo" />
-        </div>
-        <div>
-          <h1>Get started</h1>
-          <p>
-            Edit <code>src/App.tsx</code> and save to test <code>HMR</code>
-          </p>
-        </div>
-        <button
-          type="button"
-          className="counter"
-          onClick={() => setCount((count) => count + 1)}
-        >
-          Count is {count}
-        </button>
-      </section>
+      <div style={{ maxWidth: 500, margin: '40px auto', padding: 20 }}>
+        <h1>📝 Todo (сохраняется)</h1>
 
-      <div className="ticks"></div>
+        <TodoForm onAdd={addTodo} />
 
-      <section id="next-steps">
-        <div id="docs">
-          <svg className="icon" role="presentation" aria-hidden="true">
-            <use href="/icons.svg#documentation-icon"></use>
-          </svg>
-          <h2>Documentation</h2>
-          <p>Your questions, answered</p>
-          <ul>
-            <li>
-              <a href="https://vite.dev/" target="_blank">
-                <img className="logo" src={viteLogo} alt="" />
-                Explore Vite
-              </a>
-            </li>
-            <li>
-              <a href="https://react.dev/" target="_blank">
-                <img className="button-icon" src={reactLogo} alt="" />
-                Learn more
-              </a>
-            </li>
-          </ul>
-        </div>
-        <div id="social">
-          <svg className="icon" role="presentation" aria-hidden="true">
-            <use href="/icons.svg#social-icon"></use>
-          </svg>
-          <h2>Connect with us</h2>
-          <p>Join the Vite community</p>
-          <ul>
-            <li>
-              <a href="https://github.com/vitejs/vite" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#github-icon"></use>
-                </svg>
-                GitHub
-              </a>
-            </li>
-            <li>
-              <a href="https://chat.vite.dev/" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#discord-icon"></use>
-                </svg>
-                Discord
-              </a>
-            </li>
-            <li>
-              <a href="https://x.com/vite_js" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#x-icon"></use>
-                </svg>
-                X.com
-              </a>
-            </li>
-            <li>
-              <a href="https://bsky.app/profile/vite.dev" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#bluesky-icon"></use>
-                </svg>
-                Bluesky
-              </a>
-            </li>
-          </ul>
-        </div>
-      </section>
+        <p style={{ color: '#666', fontSize: 14 }}>
+          Всего: {todos.length} | Выполнено: {doneCount}
+        </p>
 
-      <div className="ticks"></div>
-      <section id="spacer"></section>
-    </>
-  )
+        {todos.length === 0 ? (
+            <p style={{ textAlign: 'center', color: '#999', padding: 40 }}>
+              Задач пока нет. Добавь первую — она переживёт перезагрузку!
+            </p>
+        ) : (
+            <>
+              <ul style={{ listStyle: 'none', padding: 0 }}>
+                {todos.map((todo) => (
+                    <TodoItem
+                        key={todo.id}
+                        todo={todo}
+                        onToggle={toggleTodo}
+                        onDelete={deleteTodo}
+                    />
+                ))}
+              </ul>
+              <button onClick={clearAll} style={{ marginTop: 16, color: '#ef4444' }}>
+                Очистить всё
+              </button>
+            </>
+        )}
+      </div>
+  );
 }
 
-export default App
+export default App;
