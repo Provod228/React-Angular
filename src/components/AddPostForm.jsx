@@ -2,7 +2,6 @@ import { useState } from 'react';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { createPost } from '../api/posts';
 
-// Часть 12: мини-форма создания поста через useMutation
 function AddPostForm() {
   const [title, setTitle] = useState('');
   const queryClient = useQueryClient();
@@ -10,9 +9,8 @@ function AddPostForm() {
   const mutation = useMutation({
     mutationFn: createPost,
     onSuccess: () => {
-      // Инвалидируем кэш постов → список перезапросится
       queryClient.invalidateQueries({ queryKey: ['posts'] });
-      setTitle(''); // очищаем форму
+      setTitle('');
     },
   });
 
@@ -20,7 +18,6 @@ function AddPostForm() {
     e.preventDefault();
     if (!title.trim()) return;
 
-    // mutate — запуск мутации. Можно передать колбэки вторым аргументом.
     mutation.mutate({ title, body: 'Новый пост', userId: 1 });
   }
 

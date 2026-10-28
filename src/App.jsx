@@ -19,7 +19,6 @@ function App() {
         <Routes>
           <Route path="/" element={<Navigate to="/posts" replace />} />
           <Route path="/posts" element={<PostsPage />} />
-          {/* /posts/new — ДО /posts/:id, иначе "new" попадёт в :id */}
           <Route path="/posts/new" element={<NewPostPage />} />
           <Route path="/posts/:id" element={<PostDetailPage />} />
           <Route path="/posts/:id/edit" element={<EditPostPage />} />
@@ -32,5 +31,6 @@ function App() {
     </>
   );
 }
+
 
 export default App;

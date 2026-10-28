@@ -1,6 +1,6 @@
 import { z } from 'zod';
 
-// Часть 11: схема формы создания пользователя
+
 export const userSchema = z
   .object({
     name: z.string().min(2, 'Минимум 2 символа'),
@@ -12,8 +12,8 @@ export const userSchema = z
     confirmPassword: z.string(),
     bio: z.string().max(500, 'Максимум 500 символов').optional(),
   })
-  // кросс-полевая проверка: видит сразу все поля объекта
   .refine((data) => data.password === data.confirmPassword, {
     message: 'Пароли не совпадают',
-    path: ['confirmPassword'], // ошибка привяжется к этому полю
+    path: ['confirmPassword'],
   });
+

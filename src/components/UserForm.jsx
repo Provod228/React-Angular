@@ -24,7 +24,7 @@ function UserForm({ onSubmit }) {
 
   async function handleFormSubmit(data) {
     await onSubmit(data);
-    reset(); // очищаем после успешной отправки
+    reset();
   }
 
   return (

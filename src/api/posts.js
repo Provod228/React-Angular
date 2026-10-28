@@ -1,7 +1,6 @@
 const BASE = 'https://jsonplaceholder.typicode.com';
 
-// Общая обработка ответа: если сервер прислал { field, message } —
-// кладём field в объект ошибки, чтобы форма могла вызвать setError(field)
+
 async function handleResponse(res) {
   if (!res.ok) {
     const body = await res.json().catch(() => ({}));
@@ -13,8 +12,7 @@ async function handleResponse(res) {
   return res.json();
 }
 
-// jsonplaceholder никогда не возвращает ошибки валидации,
-// поэтому имитируем «серверную» проверку: слово «спам» в заголовке запрещено
+
 function fakeServerValidation(data) {
   if (data.title?.toLowerCase().includes('спам')) {
     const error = new Error('Сервер: заголовок содержит запрещённое слово');
@@ -60,3 +58,4 @@ export async function deletePost(id) {
   const res = await fetch(`${BASE}/posts/${id}`, { method: 'DELETE' });
   return handleResponse(res);
 }
+

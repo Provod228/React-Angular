@@ -15,7 +15,6 @@ function NewPostPage() {
   });
 
   async function handleSubmit(data) {
-    // mutateAsync возвращает Promise и пробрасывает ошибку в PostForm
     await mutation.mutateAsync(data);
     navigate('/posts');
   }
@@ -29,3 +28,4 @@ function NewPostPage() {
 }
 
 export default NewPostPage;
+

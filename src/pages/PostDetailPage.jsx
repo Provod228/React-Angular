@@ -13,7 +13,6 @@ function PostDetailPage() {
     deleteMutation.mutate(post.id, {
       onSuccess: () => {
         navigate('/posts');
-        // данные удалённого поста больше не нужны в кэше
         queryClient.removeQueries({ queryKey: ['posts', id] });
       },
     });
@@ -47,3 +46,4 @@ function PostDetailPage() {
 }
 
 export default PostDetailPage;
+

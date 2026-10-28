@@ -1,6 +1,6 @@
 import { z } from 'zod';
 
-// Сегодняшняя дата в формате YYYY-MM-DD (по локальному времени)
+
 export function todayString() {
   const d = new Date();
   const mm = String(d.getMonth() + 1).padStart(2, '0');
@@ -21,8 +21,6 @@ export const postSchema = z.object({
     .number()
     .int('Только целое число')
     .positive('Должно быть больше 0'),
-  // useFieldArray не поддерживает массив «голых» строк (см. доку RHF),
-  // поэтому в форме тег — объект { value }, а наружу PostForm отдаёт string[]
   tags: z
     .array(
       z.object({
@@ -35,7 +33,6 @@ export const postSchema = z.object({
     .min(1, 'Добавьте хотя бы один тег')
     .max(5, 'Максимум 5 тегов'),
   status: z.enum(['draft', 'published'], 'Выберите статус'),
-  // <input type="date"> отдаёт строку, поэтому не z.date(), а строка + refine
   publishDate: z
     .string()
     .regex(/^\d{4}-\d{2}-\d{2}$/, 'Формат даты: YYYY-MM-DD')
@@ -47,7 +44,7 @@ export const postSchema = z.object({
     }, 'Дата не может быть в прошлом'),
 });
 
-// Значения для режима «создать»
+
 export const defaultPostValues = {
   title: '',
   body: '',
@@ -57,8 +54,6 @@ export const defaultPostValues = {
   publishDate: todayString(),
 };
 
-// У jsonplaceholder нет tags/status/publishDate — достраиваем их,
-// чтобы форма редактирования была сразу валидной
 export function postToFormValues(post) {
   return {
     title: post.title,
@@ -69,3 +64,4 @@ export function postToFormValues(post) {
     publishDate: post.publishDate ?? todayString(),
   };
 }
+

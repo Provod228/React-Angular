@@ -14,7 +14,6 @@ function EditPostPage() {
   const mutation = useMutation({
     mutationFn: (data) => updatePost(id, data),
     onSuccess: () => {
-      // ['posts'] — префикс: инвалидирует и список, и ['posts', id]
       queryClient.invalidateQueries({ queryKey: ['posts'] });
     },
   });
@@ -24,7 +23,6 @@ function EditPostPage() {
     navigate('/posts');
   }
 
-  // PostForm рендерим ТОЛЬКО когда данные есть → defaultValues сразу правильные
   if (isLoading) return <p>Загрузка...</p>;
   if (isError) {
     return (
@@ -44,3 +42,4 @@ function EditPostPage() {
 }
 
 export default EditPostPage;
+

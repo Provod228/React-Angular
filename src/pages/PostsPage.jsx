@@ -8,7 +8,6 @@ function PostsPage() {
   const deleteMutation = useDeletePost();
   const [search, setSearch] = useState('');
 
-  // доп. задание 1: поиск по заголовку на клиенте
   const filtered = useMemo(() => {
     const q = search.trim().toLowerCase();
     if (!data) return [];
@@ -66,3 +65,4 @@ function PostsPage() {
 }
 
 export default PostsPage;
+

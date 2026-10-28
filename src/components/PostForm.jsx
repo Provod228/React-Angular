@@ -2,7 +2,6 @@ import { useFieldArray, useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { defaultPostValues, postSchema } from '../schemas/postSchema';
 
-// Одна форма на два режима: создание (initialData нет) и редактирование
 function PostForm({ initialData, onSubmit, submitLabel = 'Сохранить' }) {
   const isEdit = Boolean(initialData);
 
@@ -14,7 +13,7 @@ function PostForm({ initialData, onSubmit, submitLabel = 'Сохранить' })
     formState: { errors, isSubmitting, isValid, isDirty },
   } = useForm({
     resolver: zodResolver(postSchema),
-    mode: 'onChange', // без этого isValid не обновляется на лету
+    mode: 'onChange',
     defaultValues: initialData ?? defaultPostValues,
   });
 
@@ -22,8 +21,6 @@ function PostForm({ initialData, onSubmit, submitLabel = 'Сохранить' })
 
   async function handleFormSubmit(data) {
     try {
-      // родитель использует mutateAsync → ошибка сервера долетит сюда
-      // [{ value: 'react' }] → ['react']
       await onSubmit({ ...data, tags: data.tags.map((tag) => tag.value) });
     } catch (err) {
       if (err.field) {
@@ -34,8 +31,6 @@ function PostForm({ initialData, onSubmit, submitLabel = 'Сохранить' })
     }
   }
 
-  // ошибка уровня массива (min/max) приходит в root,
-  // а если инпутов тегов не осталось совсем — прямо в errors.tags
   const tagsArrayError = errors.tags?.root?.message ?? errors.tags?.message;
 
   return (
@@ -61,7 +56,6 @@ function PostForm({ initialData, onSubmit, submitLabel = 'Сохранить' })
       <div>
         <label>Теги ({fields.length}/5)</label>
         {fields.map((field, index) => (
-          // field.id — служебный ключ RHF, не id из данных
           <div key={field.id}>
             <div className="row">
               <input
