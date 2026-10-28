@@ -40,3 +40,4 @@ function AddPostForm() {
 }
 
 export default AddPostForm;
+

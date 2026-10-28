@@ -29,7 +29,6 @@ export async function getPosts() {
 export async function getPost(id) {
   const res = await fetch(`${BASE}/posts/${id}`);
   const post = await handleResponse(res);
-  // на всякий случай: пустой объект тоже считаем «не найден»
   if (!post || !post.id) throw new Error('Пост не найден');
   return post;
 }
