@@ -1,0 +1,78 @@
+body {
+  margin: 0;
+  font-family: system-ui, sans-serif;
+  background: #f6f7f9;
+  color: #222;
+}
+
+.container {
+  max-width: 700px;
+  margin: 0 auto;
+  padding: 20px;
+}
+
+nav {
+  display: flex;
+  gap: 16px;
+  padding: 12px 20px;
+  background: #222;
+}
+
+nav a {
+  color: #ddd;
+  text-decoration: none;
+}
+
+nav a.active {
+  color: #fff;
+  font-weight: bold;
+}
+
+form > div {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  margin-bottom: 12px;
+}
+
+input,
+select,
+textarea,
+button {
+  font: inherit;
+  padding: 6px 8px;
+}
+
+button {
+  cursor: pointer;
+}
+
+button:disabled {
+  cursor: not-allowed;
+  opacity: 0.5;
+}
+
+.error {
+  color: #c00;
+  font-size: 13px;
+  margin: 0;
+}
+
+.row {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+
+.card {
+  background: #fff;
+  border: 1px solid #ddd;
+  border-radius: 6px;
+  padding: 12px;
+  margin-bottom: 10px;
+}
+
+.muted {
+  color: #666;
+  font-size: 13px;
+}
