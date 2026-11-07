@@ -1,0 +1,1040 @@
+﻿<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Welcome file</title>
+  <link rel="stylesheet" href="https://stackedit.io/style.css" />
+</head>
+
+<body class="stackedit">
+  <div class="stackedit__html"><h1 id="📘-часть-3-состояние-usestate-и-события">📘 Часть 3: Состояние (<code>useState</code>) и события</h1>
+<h2 id="зачем-нужно-состояние">3.1 Зачем нужно состояние</h2>
+<p>До этого все компоненты были <strong>статичными</strong>: получили пропсы и отрисовали. Но реальные приложения <strong>меняются во времени</strong>:</p>
+<ul>
+<li>Пользователь кликнул — счётчик увеличился</li>
+<li>Пользователь ввёл текст — он появился в поле</li>
+<li>Пришли данные с сервера — список обновился</li>
+</ul>
+<p><strong>Состояние (state)</strong> — это данные, которые:</p>
+<ol>
+<li><strong>Принадлежат компоненту</strong> (не приходят извне как пропсы)</li>
+<li><strong>Могут меняться</strong> во время работы</li>
+<li><strong>При изменении вызывают перерисовку</strong> компонента</li>
+</ol>
+<h3 id="ключевая-идея-react">Ключевая идея React</h3>
+<blockquote>
+<p><strong>UI = f(state)</strong></p>
+</blockquote>
+<p>Интерфейс — это функция от состояния. Меняешь состояние → React сам перерисовывает нужные части.</p>
+<hr>
+<h2 id="хук-usestate">3.2 Хук <code>useState</code></h2>
+<p><strong>Хук</strong> — специальная функция React, которая даёт компоненту дополнительные возможности. Хуки всегда начинаются с <code>use</code>.</p>
+<h3 id="синтаксис">Синтаксис</h3>
+<pre class=" language-jsx"><code class="prism  language-jsx"><span class="token keyword">import</span> <span class="token punctuation">{</span> useState <span class="token punctuation">}</span> <span class="token keyword">from</span> <span class="token string">'react'</span><span class="token punctuation">;</span>
+
+<span class="token keyword">function</span> <span class="token function">Counter</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+  <span class="token comment">// useState возвращает МАССИВ из двух элементов:</span>
+  <span class="token comment">// 1. Текущее значение состояния</span>
+  <span class="token comment">// 2. Функция для его изменения</span>
+  <span class="token keyword">const</span> <span class="token punctuation">[</span>count<span class="token punctuation">,</span> setCount<span class="token punctuation">]</span> <span class="token operator">=</span> <span class="token function">useState</span><span class="token punctuation">(</span><span class="token number">0</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+  <span class="token comment">//    ↑         ↑                ↑</span>
+  <span class="token comment">//  значение  сеттер      начальное значение</span>
+
+  <span class="token keyword">return</span> <span class="token punctuation">(</span>
+    <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>button</span> <span class="token attr-name">onClick</span><span class="token script language-javascript"><span class="token punctuation">=</span><span class="token punctuation">{</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token operator">=&gt;</span> <span class="token function">setCount</span><span class="token punctuation">(</span>count <span class="token operator">+</span> <span class="token number">1</span><span class="token punctuation">)</span><span class="token punctuation">}</span></span><span class="token punctuation">&gt;</span></span>
+      Кликов<span class="token punctuation">:</span> <span class="token punctuation">{</span>count<span class="token punctuation">}</span>
+    <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>button</span><span class="token punctuation">&gt;</span></span>
+  <span class="token punctuation">)</span><span class="token punctuation">;</span>
+<span class="token punctuation">}</span>
+</code></pre>
+<h3 id="разбор-по-частям">Разбор по частям</h3>
+<pre class=" language-jsx"><code class="prism  language-jsx"><span class="token keyword">const</span> <span class="token punctuation">[</span>count<span class="token punctuation">,</span> setCount<span class="token punctuation">]</span> <span class="token operator">=</span> <span class="token function">useState</span><span class="token punctuation">(</span><span class="token number">0</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+</code></pre>
+<p>Это <strong>деструктуризация массива</strong>. <code>useState(0)</code> возвращает <code>[0, функция]</code>. Мы сразу разбиваем это на две переменные:</p>
+<ul>
+<li><code>count</code> — текущее значение (сейчас <code>0</code>)</li>
+<li><code>setCount</code> — функция, которая меняет <code>count</code> и перерисовывает компонент</li>
+</ul>
+<p><strong>Именование:</strong> принято <code>[имя, setИмя]</code>. Например: <code>[user, setUser]</code>, <code>[isOpen, setIsOpen]</code>, <code>[items, setItems]</code>.</p>
+<h3 id="правила-хуков">Правила хуков</h3>
+<ol>
+<li><strong>Только внутри компонентов</strong> (или внутри других хуков)</li>
+<li><strong>Только на верхнем уровне</strong> — не внутри <code>if</code>, <code>for</code>, вложенных функций</li>
+</ol>
+<pre class=" language-jsx"><code class="prism  language-jsx"><span class="token comment">// ❌ НЕЛЬЗЯ — хук внутри условия</span>
+<span class="token keyword">function</span> <span class="token function">Bad</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+  <span class="token keyword">if</span> <span class="token punctuation">(</span>someCondition<span class="token punctuation">)</span> <span class="token punctuation">{</span>
+    <span class="token keyword">const</span> <span class="token punctuation">[</span>count<span class="token punctuation">,</span> setCount<span class="token punctuation">]</span> <span class="token operator">=</span> <span class="token function">useState</span><span class="token punctuation">(</span><span class="token number">0</span><span class="token punctuation">)</span><span class="token punctuation">;</span> <span class="token comment">// ошибка!</span>
+  <span class="token punctuation">}</span>
+<span class="token punctuation">}</span>
+
+<span class="token comment">// ✅ МОЖНО — хук на верхнем уровне, а условие внутри JSX</span>
+<span class="token keyword">function</span> <span class="token function">Good</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+  <span class="token keyword">const</span> <span class="token punctuation">[</span>count<span class="token punctuation">,</span> setCount<span class="token punctuation">]</span> <span class="token operator">=</span> <span class="token function">useState</span><span class="token punctuation">(</span><span class="token number">0</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+  <span class="token keyword">return</span> someCondition <span class="token operator">?</span> <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>p</span><span class="token punctuation">&gt;</span></span><span class="token punctuation">{</span>count<span class="token punctuation">}</span><span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>p</span><span class="token punctuation">&gt;</span></span> <span class="token punctuation">:</span> <span class="token keyword">null</span><span class="token punctuation">;</span>
+<span class="token punctuation">}</span>
+</code></pre>
+<p><strong>Почему?</strong> React запоминает порядок хуков. Если порядок меняется между рендерами — всё ломается. Поэтому хуки всегда вызываются в одном и том же порядке.</p>
+<hr>
+<h2 id="обновление-состояния">3.3 Обновление состояния</h2>
+<h3 id="прямое-обновление">Прямое обновление</h3>
+<pre class=" language-jsx"><code class="prism  language-jsx"><span class="token keyword">const</span> <span class="token punctuation">[</span>count<span class="token punctuation">,</span> setCount<span class="token punctuation">]</span> <span class="token operator">=</span> <span class="token function">useState</span><span class="token punctuation">(</span><span class="token number">0</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+
+<span class="token function">setCount</span><span class="token punctuation">(</span><span class="token number">5</span><span class="token punctuation">)</span><span class="token punctuation">;</span>              <span class="token comment">// установить 5</span>
+<span class="token function">setCount</span><span class="token punctuation">(</span>count <span class="token operator">+</span> <span class="token number">1</span><span class="token punctuation">)</span><span class="token punctuation">;</span>      <span class="token comment">// увеличить на 1</span>
+</code></pre>
+<h3 id="⚠️-функциональное-обновление-важно">⚠️ Функциональное обновление (важно!)</h3>
+<p>Когда новое значение зависит от предыдущего, <strong>используй функцию</strong>:</p>
+<pre class=" language-jsx"><code class="prism  language-jsx"><span class="token comment">// ❌ Может работать неправильно при нескольких обновлениях подряд</span>
+<span class="token function">setCount</span><span class="token punctuation">(</span>count <span class="token operator">+</span> <span class="token number">1</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+<span class="token function">setCount</span><span class="token punctuation">(</span>count <span class="token operator">+</span> <span class="token number">1</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+<span class="token function">setCount</span><span class="token punctuation">(</span>count <span class="token operator">+</span> <span class="token number">1</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+<span class="token comment">// Итог: count увеличится на 1, а не на 3!</span>
+<span class="token comment">// Потому что все три раза использовалось одно и то же старое count.</span>
+
+<span class="token comment">// ✅ Правильно — каждый вызов получает актуальное значение</span>
+<span class="token function">setCount</span><span class="token punctuation">(</span><span class="token punctuation">(</span>prev<span class="token punctuation">)</span> <span class="token operator">=&gt;</span> prev <span class="token operator">+</span> <span class="token number">1</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+<span class="token function">setCount</span><span class="token punctuation">(</span><span class="token punctuation">(</span>prev<span class="token punctuation">)</span> <span class="token operator">=&gt;</span> prev <span class="token operator">+</span> <span class="token number">1</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+<span class="token function">setCount</span><span class="token punctuation">(</span><span class="token punctuation">(</span>prev<span class="token punctuation">)</span> <span class="token operator">=&gt;</span> prev <span class="token operator">+</span> <span class="token number">1</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+<span class="token comment">// Итог: count увеличится на 3</span>
+</code></pre>
+<p><strong>Правило:</strong> если новое значение зависит от старого — всегда используй <code>(prev) =&gt; ...</code>.</p>
+<h3 id="состояние-асинхронно">Состояние асинхронно</h3>
+<pre class=" language-jsx"><code class="prism  language-jsx"><span class="token keyword">const</span> <span class="token punctuation">[</span>count<span class="token punctuation">,</span> setCount<span class="token punctuation">]</span> <span class="token operator">=</span> <span class="token function">useState</span><span class="token punctuation">(</span><span class="token number">0</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+
+<span class="token keyword">function</span> <span class="token function">handleClick</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+  <span class="token function">setCount</span><span class="token punctuation">(</span>count <span class="token operator">+</span> <span class="token number">1</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+  console<span class="token punctuation">.</span><span class="token function">log</span><span class="token punctuation">(</span>count<span class="token punctuation">)</span><span class="token punctuation">;</span> <span class="token comment">// выведет СТАРОЕ значение, не новое!</span>
+<span class="token punctuation">}</span>
+</code></pre>
+<p><code>setCount</code> не меняет переменную сразу — он <strong>планирует</strong> обновление. React сделает перерисовку позже, и только тогда <code>count</code> станет новым. Внутри текущей функции <code>count</code> остаётся старым.</p>
+<hr>
+<h2 id="состояние-и-объектымассивы">3.4 Состояние и объекты/массивы</h2>
+<p><strong>Главное правило: не мутируй состояние, создавай новое.</strong></p>
+<h3 id="массивы">Массивы</h3>
+<pre class=" language-jsx"><code class="prism  language-jsx"><span class="token keyword">const</span> <span class="token punctuation">[</span>items<span class="token punctuation">,</span> setItems<span class="token punctuation">]</span> <span class="token operator">=</span> <span class="token function">useState</span><span class="token punctuation">(</span><span class="token punctuation">[</span><span class="token string">'a'</span><span class="token punctuation">,</span> <span class="token string">'b'</span><span class="token punctuation">]</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+
+<span class="token comment">// ❌ Мутация — React не увидит изменений, перерисовки не будет</span>
+items<span class="token punctuation">.</span><span class="token function">push</span><span class="token punctuation">(</span><span class="token string">'c'</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+<span class="token function">setItems</span><span class="token punctuation">(</span>items<span class="token punctuation">)</span><span class="token punctuation">;</span>
+
+<span class="token comment">// ✅ Создаём новый массив через spread</span>
+<span class="token function">setItems</span><span class="token punctuation">(</span><span class="token punctuation">[</span><span class="token operator">...</span>items<span class="token punctuation">,</span> <span class="token string">'c'</span><span class="token punctuation">]</span><span class="token punctuation">)</span><span class="token punctuation">;</span>        <span class="token comment">// добавить в конец</span>
+<span class="token function">setItems</span><span class="token punctuation">(</span><span class="token punctuation">[</span><span class="token string">'c'</span><span class="token punctuation">,</span> <span class="token operator">...</span>items<span class="token punctuation">]</span><span class="token punctuation">)</span><span class="token punctuation">;</span>        <span class="token comment">// добавить в начало</span>
+<span class="token function">setItems</span><span class="token punctuation">(</span>items<span class="token punctuation">.</span><span class="token function">filter</span><span class="token punctuation">(</span>i <span class="token operator">=&gt;</span> i <span class="token operator">!==</span> <span class="token string">'a'</span><span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">;</span>  <span class="token comment">// удалить</span>
+<span class="token function">setItems</span><span class="token punctuation">(</span>items<span class="token punctuation">.</span><span class="token function">map</span><span class="token punctuation">(</span>i <span class="token operator">=&gt;</span> i <span class="token operator">===</span> <span class="token string">'a'</span> <span class="token operator">?</span> <span class="token string">'A'</span> <span class="token punctuation">:</span> i<span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">;</span>  <span class="token comment">// заменить</span>
+</code></pre>
+<h3 id="объекты">Объекты</h3>
+<pre class=" language-jsx"><code class="prism  language-jsx"><span class="token keyword">const</span> <span class="token punctuation">[</span>user<span class="token punctuation">,</span> setUser<span class="token punctuation">]</span> <span class="token operator">=</span> <span class="token function">useState</span><span class="token punctuation">(</span><span class="token punctuation">{</span> name<span class="token punctuation">:</span> <span class="token string">'Иван'</span><span class="token punctuation">,</span> age<span class="token punctuation">:</span> <span class="token number">25</span> <span class="token punctuation">}</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+
+<span class="token comment">// ❌ Мутация</span>
+user<span class="token punctuation">.</span>age <span class="token operator">=</span> <span class="token number">26</span><span class="token punctuation">;</span>
+<span class="token function">setUser</span><span class="token punctuation">(</span>user<span class="token punctuation">)</span><span class="token punctuation">;</span>
+
+<span class="token comment">// ✅ Создаём новый объект через spread</span>
+<span class="token function">setUser</span><span class="token punctuation">(</span><span class="token punctuation">{</span> <span class="token operator">...</span>user<span class="token punctuation">,</span> age<span class="token punctuation">:</span> <span class="token number">26</span> <span class="token punctuation">}</span><span class="token punctuation">)</span><span class="token punctuation">;</span>          <span class="token comment">// изменить одно поле</span>
+<span class="token function">setUser</span><span class="token punctuation">(</span><span class="token punctuation">{</span> <span class="token operator">...</span>user<span class="token punctuation">,</span> city<span class="token punctuation">:</span> <span class="token string">'Москва'</span> <span class="token punctuation">}</span><span class="token punctuation">)</span><span class="token punctuation">;</span>   <span class="token comment">// добавить поле</span>
+</code></pre>
+<p><strong>Почему?</strong> React сравнивает старое и новое значение <strong>по ссылке</strong> (<code>===</code>). Если ты мутируешь тот же объект — ссылка та же, React думает, что ничего не изменилось, и не перерисовывает.</p>
+<hr>
+<h2 id="обработчики-событий">3.5 Обработчики событий</h2>
+<h3 id="синтаксис-1">Синтаксис</h3>
+<pre class=" language-jsx"><code class="prism  language-jsx"><span class="token comment">// Функция-обработчик передаётся БЕЗ скобок</span>
+<span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>button</span> <span class="token attr-name">onClick</span><span class="token script language-javascript"><span class="token punctuation">=</span><span class="token punctuation">{</span>handleClick<span class="token punctuation">}</span></span><span class="token punctuation">&gt;</span></span>Нажми<span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>button</span><span class="token punctuation">&gt;</span></span>
+
+<span class="token comment">// Можно inline — стрелочную функцию</span>
+<span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>button</span> <span class="token attr-name">onClick</span><span class="token script language-javascript"><span class="token punctuation">=</span><span class="token punctuation">{</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token operator">=&gt;</span> <span class="token function">alert</span><span class="token punctuation">(</span><span class="token string">'Клик!'</span><span class="token punctuation">)</span><span class="token punctuation">}</span></span><span class="token punctuation">&gt;</span></span>Нажми<span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>button</span><span class="token punctuation">&gt;</span></span>
+
+<span class="token comment">// ❌ Ошибка — вызовется сразу при рендере</span>
+<span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>button</span> <span class="token attr-name">onClick</span><span class="token script language-javascript"><span class="token punctuation">=</span><span class="token punctuation">{</span><span class="token function">handleClick</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">}</span></span><span class="token punctuation">&gt;</span></span>Нажми<span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>button</span><span class="token punctuation">&gt;</span></span>
+</code></pre>
+<h3 id="популярные-события">Популярные события</h3>
+
+<table>
+<thead>
+<tr>
+<th>Событие</th>
+<th>Когда срабатывает</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>onClick</code></td>
+<td>Клик</td>
+</tr>
+<tr>
+<td><code>onChange</code></td>
+<td>Изменение значения (инпуты)</td>
+</tr>
+<tr>
+<td><code>onSubmit</code></td>
+<td>Отправка формы</td>
+</tr>
+<tr>
+<td><code>onFocus</code> / <code>onBlur</code></td>
+<td>Получил/потерял фокус</td>
+</tr>
+<tr>
+<td><code>onMouseEnter</code> / <code>onMouseLeave</code></td>
+<td>Наведение мыши</td>
+</tr>
+<tr>
+<td><code>onKeyDown</code> / <code>onKeyUp</code></td>
+<td>Нажатие клавиши</td>
+</tr>
+<tr>
+<td><code>onInput</code></td>
+<td>Любой ввод в поле</td>
+</tr>
+</tbody>
+</table><h3 id="объект-события">Объект события</h3>
+<p>Обработчик получает <strong>синтетическое событие</strong> (<code>SyntheticEvent</code>) — обёртку над нативным:</p>
+<pre class=" language-jsx"><code class="prism  language-jsx"><span class="token keyword">function</span> <span class="token function">handleChange</span><span class="token punctuation">(</span>event<span class="token punctuation">)</span> <span class="token punctuation">{</span>
+  console<span class="token punctuation">.</span><span class="token function">log</span><span class="token punctuation">(</span>event<span class="token punctuation">.</span>target<span class="token punctuation">.</span>value<span class="token punctuation">)</span><span class="token punctuation">;</span>    <span class="token comment">// значение из инпута</span>
+  console<span class="token punctuation">.</span><span class="token function">log</span><span class="token punctuation">(</span>event<span class="token punctuation">.</span>target<span class="token punctuation">.</span>name<span class="token punctuation">)</span><span class="token punctuation">;</span>     <span class="token comment">// атрибут name</span>
+  console<span class="token punctuation">.</span><span class="token function">log</span><span class="token punctuation">(</span>event<span class="token punctuation">.</span>target<span class="token punctuation">.</span>checked<span class="token punctuation">)</span><span class="token punctuation">;</span>  <span class="token comment">// для чекбокса</span>
+<span class="token punctuation">}</span>
+
+<span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>input</span> <span class="token attr-name">onChange</span><span class="token script language-javascript"><span class="token punctuation">=</span><span class="token punctuation">{</span>handleChange<span class="token punctuation">}</span></span> <span class="token punctuation">/&gt;</span></span>
+</code></pre>
+<p><code>event.target</code> — DOM-элемент, на котором произошло событие.</p>
+<h3 id="передача-аргументов">Передача аргументов</h3>
+<pre class=" language-jsx"><code class="prism  language-jsx"><span class="token comment">// Нужно передать не только event, но и данные</span>
+<span class="token keyword">function</span> <span class="token function">handleDelete</span><span class="token punctuation">(</span>event<span class="token punctuation">,</span> id<span class="token punctuation">)</span> <span class="token punctuation">{</span>
+  event<span class="token punctuation">.</span><span class="token function">stopPropagation</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>  <span class="token comment">// остановить всплытие</span>
+  console<span class="token punctuation">.</span><span class="token function">log</span><span class="token punctuation">(</span><span class="token string">'Удаляем'</span><span class="token punctuation">,</span> id<span class="token punctuation">)</span><span class="token punctuation">;</span>
+<span class="token punctuation">}</span>
+
+<span class="token comment">// Через стрелочную функцию</span>
+<span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>button</span> <span class="token attr-name">onClick</span><span class="token script language-javascript"><span class="token punctuation">=</span><span class="token punctuation">{</span><span class="token punctuation">(</span>e<span class="token punctuation">)</span> <span class="token operator">=&gt;</span> <span class="token function">handleDelete</span><span class="token punctuation">(</span>e<span class="token punctuation">,</span> item<span class="token punctuation">.</span>id<span class="token punctuation">)</span><span class="token punctuation">}</span></span><span class="token punctuation">&gt;</span></span>Удалить<span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>button</span><span class="token punctuation">&gt;</span></span>
+</code></pre>
+<hr>
+<h2 id="управляемые-компоненты-controlled-components">3.6 Управляемые компоненты (controlled components)</h2>
+<p><strong>Управляемый инпут</strong> — это инпут, значение которого контролируется состоянием React.</p>
+<pre class=" language-jsx"><code class="prism  language-jsx"><span class="token keyword">function</span> <span class="token function">NameInput</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+  <span class="token keyword">const</span> <span class="token punctuation">[</span>name<span class="token punctuation">,</span> setName<span class="token punctuation">]</span> <span class="token operator">=</span> <span class="token function">useState</span><span class="token punctuation">(</span><span class="token string">''</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+
+  <span class="token keyword">return</span> <span class="token punctuation">(</span>
+    <span class="token operator">&lt;</span>input
+      value<span class="token operator">=</span><span class="token punctuation">{</span>name<span class="token punctuation">}</span>                              <span class="token comment">// значение из state</span>
+      onChange<span class="token operator">=</span><span class="token punctuation">{</span><span class="token punctuation">(</span>e<span class="token punctuation">)</span> <span class="token operator">=&gt;</span> <span class="token function">setName</span><span class="token punctuation">(</span>e<span class="token punctuation">.</span>target<span class="token punctuation">.</span>value<span class="token punctuation">)</span><span class="token punctuation">}</span> <span class="token comment">// обновляем state при вводе</span>
+    <span class="token operator">/</span><span class="token operator">&gt;</span>
+  <span class="token punctuation">)</span><span class="token punctuation">;</span>
+<span class="token punctuation">}</span>
+</code></pre>
+<p><strong>Зачем?</strong></p>
+<ul>
+<li>Всегда знаешь текущее значение</li>
+<li>Можешь валидировать на лету</li>
+<li>Можешь форматировать (например, только цифры)</li>
+<li>Легко сбрасывать форму</li>
+</ul>
+<p><strong>Правило:</strong> если у инпута есть <code>value</code> — обязательно должен быть и <code>onChange</code>, иначе поле нельзя будет изменить.</p>
+<h3 id="разные-типы-инпутов">Разные типы инпутов</h3>
+<pre class=" language-jsx"><code class="prism  language-jsx"><span class="token keyword">const</span> <span class="token punctuation">[</span>form<span class="token punctuation">,</span> setForm<span class="token punctuation">]</span> <span class="token operator">=</span> <span class="token function">useState</span><span class="token punctuation">(</span><span class="token punctuation">{</span>
+  name<span class="token punctuation">:</span> <span class="token string">''</span><span class="token punctuation">,</span>
+  email<span class="token punctuation">:</span> <span class="token string">''</span><span class="token punctuation">,</span>
+  age<span class="token punctuation">:</span> <span class="token string">''</span><span class="token punctuation">,</span>
+  agree<span class="token punctuation">:</span> <span class="token boolean">false</span><span class="token punctuation">,</span>
+  gender<span class="token punctuation">:</span> <span class="token string">'male'</span><span class="token punctuation">,</span>
+  bio<span class="token punctuation">:</span> <span class="token string">''</span><span class="token punctuation">,</span>
+<span class="token punctuation">}</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+
+<span class="token comment">// Универсальный обработчик для всех полей</span>
+<span class="token keyword">function</span> <span class="token function">handleChange</span><span class="token punctuation">(</span>e<span class="token punctuation">)</span> <span class="token punctuation">{</span>
+  <span class="token keyword">const</span> <span class="token punctuation">{</span> name<span class="token punctuation">,</span> value<span class="token punctuation">,</span> type<span class="token punctuation">,</span> checked <span class="token punctuation">}</span> <span class="token operator">=</span> e<span class="token punctuation">.</span>target<span class="token punctuation">;</span>
+  <span class="token function">setForm</span><span class="token punctuation">(</span><span class="token punctuation">(</span>prev<span class="token punctuation">)</span> <span class="token operator">=&gt;</span> <span class="token punctuation">(</span><span class="token punctuation">{</span>
+    <span class="token operator">...</span>prev<span class="token punctuation">,</span>
+    <span class="token punctuation">[</span>name<span class="token punctuation">]</span><span class="token punctuation">:</span> type <span class="token operator">===</span> <span class="token string">'checkbox'</span> <span class="token operator">?</span> checked <span class="token punctuation">:</span> value<span class="token punctuation">,</span>
+  <span class="token punctuation">}</span><span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+<span class="token punctuation">}</span>
+
+<span class="token comment">// Text input</span>
+<span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>input</span> <span class="token attr-name">name</span><span class="token attr-value"><span class="token punctuation">=</span><span class="token punctuation">"</span>name<span class="token punctuation">"</span></span> <span class="token attr-name">value</span><span class="token script language-javascript"><span class="token punctuation">=</span><span class="token punctuation">{</span>form<span class="token punctuation">.</span>name<span class="token punctuation">}</span></span> <span class="token attr-name">onChange</span><span class="token script language-javascript"><span class="token punctuation">=</span><span class="token punctuation">{</span>handleChange<span class="token punctuation">}</span></span> <span class="token punctuation">/&gt;</span></span>
+
+<span class="token comment">// Checkbox — использует checked, не value</span>
+<span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>input</span>
+  <span class="token attr-name">type</span><span class="token attr-value"><span class="token punctuation">=</span><span class="token punctuation">"</span>checkbox<span class="token punctuation">"</span></span>
+  <span class="token attr-name">name</span><span class="token attr-value"><span class="token punctuation">=</span><span class="token punctuation">"</span>agree<span class="token punctuation">"</span></span>
+  <span class="token attr-name">checked</span><span class="token script language-javascript"><span class="token punctuation">=</span><span class="token punctuation">{</span>form<span class="token punctuation">.</span>agree<span class="token punctuation">}</span></span>
+  <span class="token attr-name">onChange</span><span class="token script language-javascript"><span class="token punctuation">=</span><span class="token punctuation">{</span>handleChange<span class="token punctuation">}</span></span>
+<span class="token punctuation">/&gt;</span></span>
+
+<span class="token comment">// Select</span>
+<span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>select</span> <span class="token attr-name">name</span><span class="token attr-value"><span class="token punctuation">=</span><span class="token punctuation">"</span>gender<span class="token punctuation">"</span></span> <span class="token attr-name">value</span><span class="token script language-javascript"><span class="token punctuation">=</span><span class="token punctuation">{</span>form<span class="token punctuation">.</span>gender<span class="token punctuation">}</span></span> <span class="token attr-name">onChange</span><span class="token script language-javascript"><span class="token punctuation">=</span><span class="token punctuation">{</span>handleChange<span class="token punctuation">}</span></span><span class="token punctuation">&gt;</span></span>
+  <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>option</span> <span class="token attr-name">value</span><span class="token attr-value"><span class="token punctuation">=</span><span class="token punctuation">"</span>male<span class="token punctuation">"</span></span><span class="token punctuation">&gt;</span></span>Мужской<span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>option</span><span class="token punctuation">&gt;</span></span>
+  <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>option</span> <span class="token attr-name">value</span><span class="token attr-value"><span class="token punctuation">=</span><span class="token punctuation">"</span>female<span class="token punctuation">"</span></span><span class="token punctuation">&gt;</span></span>Женский<span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>option</span><span class="token punctuation">&gt;</span></span>
+<span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>select</span><span class="token punctuation">&gt;</span></span>
+
+<span class="token comment">// Textarea — в React это value, а не children</span>
+<span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>textarea</span> <span class="token attr-name">name</span><span class="token attr-value"><span class="token punctuation">=</span><span class="token punctuation">"</span>bio<span class="token punctuation">"</span></span> <span class="token attr-name">value</span><span class="token script language-javascript"><span class="token punctuation">=</span><span class="token punctuation">{</span>form<span class="token punctuation">.</span>bio<span class="token punctuation">}</span></span> <span class="token attr-name">onChange</span><span class="token script language-javascript"><span class="token punctuation">=</span><span class="token punctuation">{</span>handleChange<span class="token punctuation">}</span></span> <span class="token punctuation">/&gt;</span></span>
+</code></pre>
+<p>⚠️ <strong>Важно:</strong> в HTML <code>textarea</code> заполняется через дочерний текст. В React — через проп <code>value</code>.</p>
+<hr>
+<h2 id="обработка-форм">3.7 Обработка форм</h2>
+<pre class=" language-jsx"><code class="prism  language-jsx"><span class="token keyword">function</span> <span class="token function">LoginForm</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+  <span class="token keyword">const</span> <span class="token punctuation">[</span>email<span class="token punctuation">,</span> setEmail<span class="token punctuation">]</span> <span class="token operator">=</span> <span class="token function">useState</span><span class="token punctuation">(</span><span class="token string">''</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+  <span class="token keyword">const</span> <span class="token punctuation">[</span>password<span class="token punctuation">,</span> setPassword<span class="token punctuation">]</span> <span class="token operator">=</span> <span class="token function">useState</span><span class="token punctuation">(</span><span class="token string">''</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+
+  <span class="token keyword">function</span> <span class="token function">handleSubmit</span><span class="token punctuation">(</span>e<span class="token punctuation">)</span> <span class="token punctuation">{</span>
+    e<span class="token punctuation">.</span><span class="token function">preventDefault</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span> <span class="token comment">// ОБЯЗАТЕЛЬНО — иначе браузер перезагрузит страницу</span>
+    console<span class="token punctuation">.</span><span class="token function">log</span><span class="token punctuation">(</span><span class="token punctuation">{</span> email<span class="token punctuation">,</span> password <span class="token punctuation">}</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+    <span class="token comment">// Тут обычно отправка на сервер</span>
+  <span class="token punctuation">}</span>
+
+  <span class="token keyword">return</span> <span class="token punctuation">(</span>
+    <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>form</span> <span class="token attr-name">onSubmit</span><span class="token script language-javascript"><span class="token punctuation">=</span><span class="token punctuation">{</span>handleSubmit<span class="token punctuation">}</span></span><span class="token punctuation">&gt;</span></span>
+      <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>input</span>
+        <span class="token attr-name">type</span><span class="token attr-value"><span class="token punctuation">=</span><span class="token punctuation">"</span>email<span class="token punctuation">"</span></span>
+        <span class="token attr-name">value</span><span class="token script language-javascript"><span class="token punctuation">=</span><span class="token punctuation">{</span>email<span class="token punctuation">}</span></span>
+        <span class="token attr-name">onChange</span><span class="token script language-javascript"><span class="token punctuation">=</span><span class="token punctuation">{</span><span class="token punctuation">(</span>e<span class="token punctuation">)</span> <span class="token operator">=&gt;</span> <span class="token function">setEmail</span><span class="token punctuation">(</span>e<span class="token punctuation">.</span>target<span class="token punctuation">.</span>value<span class="token punctuation">)</span><span class="token punctuation">}</span></span>
+      <span class="token punctuation">/&gt;</span></span>
+      <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>input</span>
+        <span class="token attr-name">type</span><span class="token attr-value"><span class="token punctuation">=</span><span class="token punctuation">"</span>password<span class="token punctuation">"</span></span>
+        <span class="token attr-name">value</span><span class="token script language-javascript"><span class="token punctuation">=</span><span class="token punctuation">{</span>password<span class="token punctuation">}</span></span>
+        <span class="token attr-name">onChange</span><span class="token script language-javascript"><span class="token punctuation">=</span><span class="token punctuation">{</span><span class="token punctuation">(</span>e<span class="token punctuation">)</span> <span class="token operator">=&gt;</span> <span class="token function">setPassword</span><span class="token punctuation">(</span>e<span class="token punctuation">.</span>target<span class="token punctuation">.</span>value<span class="token punctuation">)</span><span class="token punctuation">}</span></span>
+      <span class="token punctuation">/&gt;</span></span>
+      <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>button</span> <span class="token attr-name">type</span><span class="token attr-value"><span class="token punctuation">=</span><span class="token punctuation">"</span>submit<span class="token punctuation">"</span></span><span class="token punctuation">&gt;</span></span>Войти<span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>button</span><span class="token punctuation">&gt;</span></span>
+    <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>form</span><span class="token punctuation">&gt;</span></span>
+  <span class="token punctuation">)</span><span class="token punctuation">;</span>
+<span class="token punctuation">}</span>
+</code></pre>
+<p><strong><code>e.preventDefault()</code></strong> — обязательно. Без него браузер отправит форму по-старому и перезагрузит страницу, потеряв всё состояние.</p>
+<hr>
+<h2 id="🎯-практика-части-3-todo-приложение-базовая-версия">3.8 🎯 Практика Части 3: Todo-приложение (базовая версия)</h2>
+<p>Соберём полноценный todo-лист. Пока без фильтров — они будут в Части 4.</p>
+<h3 id="srcapp.jsx"><code>src/App.jsx</code></h3>
+<pre class=" language-jsx"><code class="prism  language-jsx"><span class="token keyword">import</span> <span class="token punctuation">{</span> useState <span class="token punctuation">}</span> <span class="token keyword">from</span> <span class="token string">'react'</span><span class="token punctuation">;</span>
+
+<span class="token keyword">function</span> <span class="token function">App</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+  <span class="token comment">// ---- Состояние ----</span>
+  <span class="token comment">// Массив задач. Каждая задача — объект { id, text, done }</span>
+  <span class="token keyword">const</span> <span class="token punctuation">[</span>todos<span class="token punctuation">,</span> setTodos<span class="token punctuation">]</span> <span class="token operator">=</span> <span class="token function">useState</span><span class="token punctuation">(</span><span class="token punctuation">[</span>
+    <span class="token punctuation">{</span> id<span class="token punctuation">:</span> <span class="token number">1</span><span class="token punctuation">,</span> text<span class="token punctuation">:</span> <span class="token string">'Изучить useState'</span><span class="token punctuation">,</span> done<span class="token punctuation">:</span> <span class="token boolean">true</span> <span class="token punctuation">}</span><span class="token punctuation">,</span>
+    <span class="token punctuation">{</span> id<span class="token punctuation">:</span> <span class="token number">2</span><span class="token punctuation">,</span> text<span class="token punctuation">:</span> <span class="token string">'Разобраться с событиями'</span><span class="token punctuation">,</span> done<span class="token punctuation">:</span> <span class="token boolean">false</span> <span class="token punctuation">}</span><span class="token punctuation">,</span>
+  <span class="token punctuation">]</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+
+  <span class="token comment">// Значение инпута (controlled component)</span>
+  <span class="token keyword">const</span> <span class="token punctuation">[</span>inputValue<span class="token punctuation">,</span> setInputValue<span class="token punctuation">]</span> <span class="token operator">=</span> <span class="token function">useState</span><span class="token punctuation">(</span><span class="token string">''</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+
+  <span class="token comment">// ---- Обработчики ----</span>
+
+  <span class="token comment">// Добавить задачу</span>
+  <span class="token keyword">function</span> <span class="token function">handleAdd</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+    <span class="token keyword">const</span> trimmed <span class="token operator">=</span> inputValue<span class="token punctuation">.</span><span class="token function">trim</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+    <span class="token keyword">if</span> <span class="token punctuation">(</span><span class="token operator">!</span>trimmed<span class="token punctuation">)</span> <span class="token keyword">return</span><span class="token punctuation">;</span> <span class="token comment">// не добавляем пустые</span>
+
+    <span class="token keyword">const</span> newTodo <span class="token operator">=</span> <span class="token punctuation">{</span>
+      id<span class="token punctuation">:</span> Date<span class="token punctuation">.</span><span class="token function">now</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">,</span> <span class="token comment">// простой способ получить уникальный id</span>
+      text<span class="token punctuation">:</span> trimmed<span class="token punctuation">,</span>
+      done<span class="token punctuation">:</span> <span class="token boolean">false</span><span class="token punctuation">,</span>
+    <span class="token punctuation">}</span><span class="token punctuation">;</span>
+
+    <span class="token comment">// ✅ Создаём НОВЫЙ массив, не мутируем</span>
+    <span class="token function">setTodos</span><span class="token punctuation">(</span><span class="token punctuation">(</span>prev<span class="token punctuation">)</span> <span class="token operator">=&gt;</span> <span class="token punctuation">[</span><span class="token operator">...</span>prev<span class="token punctuation">,</span> newTodo<span class="token punctuation">]</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+    <span class="token function">setInputValue</span><span class="token punctuation">(</span><span class="token string">''</span><span class="token punctuation">)</span><span class="token punctuation">;</span> <span class="token comment">// очищаем инпут</span>
+  <span class="token punctuation">}</span>
+
+  <span class="token comment">// Переключить done</span>
+  <span class="token keyword">function</span> <span class="token function">handleToggle</span><span class="token punctuation">(</span>id<span class="token punctuation">)</span> <span class="token punctuation">{</span>
+    <span class="token comment">// ✅ map создаёт новый массив</span>
+    <span class="token function">setTodos</span><span class="token punctuation">(</span><span class="token punctuation">(</span>prev<span class="token punctuation">)</span> <span class="token operator">=&gt;</span>
+      prev<span class="token punctuation">.</span><span class="token function">map</span><span class="token punctuation">(</span><span class="token punctuation">(</span>todo<span class="token punctuation">)</span> <span class="token operator">=&gt;</span>
+        todo<span class="token punctuation">.</span>id <span class="token operator">===</span> id <span class="token operator">?</span> <span class="token punctuation">{</span> <span class="token operator">...</span>todo<span class="token punctuation">,</span> done<span class="token punctuation">:</span> <span class="token operator">!</span>todo<span class="token punctuation">.</span>done <span class="token punctuation">}</span> <span class="token punctuation">:</span> todo
+      <span class="token punctuation">)</span>
+    <span class="token punctuation">)</span><span class="token punctuation">;</span>
+  <span class="token punctuation">}</span>
+
+  <span class="token comment">// Удалить задачу</span>
+  <span class="token keyword">function</span> <span class="token function">handleDelete</span><span class="token punctuation">(</span>id<span class="token punctuation">)</span> <span class="token punctuation">{</span>
+    <span class="token comment">// ✅ filter создаёт новый массив</span>
+    <span class="token function">setTodos</span><span class="token punctuation">(</span><span class="token punctuation">(</span>prev<span class="token punctuation">)</span> <span class="token operator">=&gt;</span> prev<span class="token punctuation">.</span><span class="token function">filter</span><span class="token punctuation">(</span><span class="token punctuation">(</span>todo<span class="token punctuation">)</span> <span class="token operator">=&gt;</span> todo<span class="token punctuation">.</span>id <span class="token operator">!==</span> id<span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+  <span class="token punctuation">}</span>
+
+  <span class="token comment">// ---- Подсчёты ----</span>
+  <span class="token keyword">const</span> doneCount <span class="token operator">=</span> todos<span class="token punctuation">.</span><span class="token function">filter</span><span class="token punctuation">(</span><span class="token punctuation">(</span>t<span class="token punctuation">)</span> <span class="token operator">=&gt;</span> t<span class="token punctuation">.</span>done<span class="token punctuation">)</span><span class="token punctuation">.</span>length<span class="token punctuation">;</span>
+  <span class="token keyword">const</span> activeCount <span class="token operator">=</span> todos<span class="token punctuation">.</span>length <span class="token operator">-</span> doneCount<span class="token punctuation">;</span>
+
+  <span class="token keyword">return</span> <span class="token punctuation">(</span>
+    <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>div</span> <span class="token attr-name">style</span><span class="token script language-javascript"><span class="token punctuation">=</span><span class="token punctuation">{</span><span class="token punctuation">{</span> maxWidth<span class="token punctuation">:</span> <span class="token number">500</span><span class="token punctuation">,</span> margin<span class="token punctuation">:</span> <span class="token string">'40px auto'</span><span class="token punctuation">,</span> padding<span class="token punctuation">:</span> <span class="token number">20</span> <span class="token punctuation">}</span><span class="token punctuation">}</span></span><span class="token punctuation">&gt;</span></span>
+      <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>h1</span><span class="token punctuation">&gt;</span></span>📝 Todo List<span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>h1</span><span class="token punctuation">&gt;</span></span>
+
+      <span class="token punctuation">{</span><span class="token comment">/* Форма добавления. Enter в инпуте тоже сработает благодаря form + onSubmit */</span><span class="token punctuation">}</span>
+      <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>form</span>
+        <span class="token attr-name">onSubmit</span><span class="token script language-javascript"><span class="token punctuation">=</span><span class="token punctuation">{</span><span class="token punctuation">(</span>e<span class="token punctuation">)</span> <span class="token operator">=&gt;</span> <span class="token punctuation">{</span>
+          e<span class="token punctuation">.</span><span class="token function">preventDefault</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+          <span class="token function">handleAdd</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+        <span class="token punctuation">}</span><span class="token punctuation">}</span></span>
+        <span class="token attr-name">style</span><span class="token script language-javascript"><span class="token punctuation">=</span><span class="token punctuation">{</span><span class="token punctuation">{</span> display<span class="token punctuation">:</span> <span class="token string">'flex'</span><span class="token punctuation">,</span> gap<span class="token punctuation">:</span> <span class="token number">8</span><span class="token punctuation">,</span> marginBottom<span class="token punctuation">:</span> <span class="token number">16</span> <span class="token punctuation">}</span><span class="token punctuation">}</span></span>
+      <span class="token punctuation">&gt;</span></span>
+        <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>input</span>
+          <span class="token attr-name">value</span><span class="token script language-javascript"><span class="token punctuation">=</span><span class="token punctuation">{</span>inputValue<span class="token punctuation">}</span></span>
+          <span class="token attr-name">onChange</span><span class="token script language-javascript"><span class="token punctuation">=</span><span class="token punctuation">{</span><span class="token punctuation">(</span>e<span class="token punctuation">)</span> <span class="token operator">=&gt;</span> <span class="token function">setInputValue</span><span class="token punctuation">(</span>e<span class="token punctuation">.</span>target<span class="token punctuation">.</span>value<span class="token punctuation">)</span><span class="token punctuation">}</span></span>
+          <span class="token attr-name">placeholder</span><span class="token attr-value"><span class="token punctuation">=</span><span class="token punctuation">"</span>Что нужно сделать?<span class="token punctuation">"</span></span>
+          <span class="token attr-name">style</span><span class="token script language-javascript"><span class="token punctuation">=</span><span class="token punctuation">{</span><span class="token punctuation">{</span> flex<span class="token punctuation">:</span> <span class="token number">1</span><span class="token punctuation">,</span> padding<span class="token punctuation">:</span> <span class="token number">10</span><span class="token punctuation">,</span> borderRadius<span class="token punctuation">:</span> <span class="token number">8</span><span class="token punctuation">,</span> border<span class="token punctuation">:</span> <span class="token string">'1px solid #ddd'</span> <span class="token punctuation">}</span><span class="token punctuation">}</span></span>
+        <span class="token punctuation">/&gt;</span></span>
+        <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>button</span> <span class="token attr-name">type</span><span class="token attr-value"><span class="token punctuation">=</span><span class="token punctuation">"</span>submit<span class="token punctuation">"</span></span> <span class="token attr-name">style</span><span class="token script language-javascript"><span class="token punctuation">=</span><span class="token punctuation">{</span><span class="token punctuation">{</span> padding<span class="token punctuation">:</span> <span class="token string">'10px 20px'</span> <span class="token punctuation">}</span><span class="token punctuation">}</span></span><span class="token punctuation">&gt;</span></span>
+          Добавить
+        <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>button</span><span class="token punctuation">&gt;</span></span>
+      <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>form</span><span class="token punctuation">&gt;</span></span>
+
+      <span class="token punctuation">{</span><span class="token comment">/* Статистика */</span><span class="token punctuation">}</span>
+      <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>p</span> <span class="token attr-name">style</span><span class="token script language-javascript"><span class="token punctuation">=</span><span class="token punctuation">{</span><span class="token punctuation">{</span> color<span class="token punctuation">:</span> <span class="token string">'#666'</span><span class="token punctuation">,</span> fontSize<span class="token punctuation">:</span> <span class="token number">14</span> <span class="token punctuation">}</span><span class="token punctuation">}</span></span><span class="token punctuation">&gt;</span></span>
+        Всего<span class="token punctuation">:</span> <span class="token punctuation">{</span>todos<span class="token punctuation">.</span>length<span class="token punctuation">}</span> <span class="token operator">|</span> Активных<span class="token punctuation">:</span> <span class="token punctuation">{</span>activeCount<span class="token punctuation">}</span> <span class="token operator">|</span> Выполнено<span class="token punctuation">:</span> <span class="token punctuation">{</span>doneCount<span class="token punctuation">}</span>
+      <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>p</span><span class="token punctuation">&gt;</span></span>
+
+      <span class="token punctuation">{</span><span class="token comment">/* Пустое состояние */</span><span class="token punctuation">}</span>
+      <span class="token punctuation">{</span>todos<span class="token punctuation">.</span>length <span class="token operator">===</span> <span class="token number">0</span> <span class="token operator">&amp;&amp;</span> <span class="token punctuation">(</span>
+        <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>p</span> <span class="token attr-name">style</span><span class="token script language-javascript"><span class="token punctuation">=</span><span class="token punctuation">{</span><span class="token punctuation">{</span> textAlign<span class="token punctuation">:</span> <span class="token string">'center'</span><span class="token punctuation">,</span> color<span class="token punctuation">:</span> <span class="token string">'#999'</span><span class="token punctuation">,</span> padding<span class="token punctuation">:</span> <span class="token number">40</span> <span class="token punctuation">}</span><span class="token punctuation">}</span></span><span class="token punctuation">&gt;</span></span>
+          Задач пока нет<span class="token punctuation">.</span> Добавь первую<span class="token operator">!</span>
+        <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>p</span><span class="token punctuation">&gt;</span></span>
+      <span class="token punctuation">)</span><span class="token punctuation">}</span>
+
+      <span class="token punctuation">{</span><span class="token comment">/* Список */</span><span class="token punctuation">}</span>
+      <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>ul</span> <span class="token attr-name">style</span><span class="token script language-javascript"><span class="token punctuation">=</span><span class="token punctuation">{</span><span class="token punctuation">{</span> listStyle<span class="token punctuation">:</span> <span class="token string">'none'</span><span class="token punctuation">,</span> padding<span class="token punctuation">:</span> <span class="token number">0</span> <span class="token punctuation">}</span><span class="token punctuation">}</span></span><span class="token punctuation">&gt;</span></span>
+        <span class="token punctuation">{</span>todos<span class="token punctuation">.</span><span class="token function">map</span><span class="token punctuation">(</span><span class="token punctuation">(</span>todo<span class="token punctuation">)</span> <span class="token operator">=&gt;</span> <span class="token punctuation">(</span>
+          <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>li</span>
+            <span class="token attr-name">key</span><span class="token script language-javascript"><span class="token punctuation">=</span><span class="token punctuation">{</span>todo<span class="token punctuation">.</span>id<span class="token punctuation">}</span></span>
+            <span class="token attr-name">style</span><span class="token script language-javascript"><span class="token punctuation">=</span><span class="token punctuation">{</span><span class="token punctuation">{</span>
+              display<span class="token punctuation">:</span> <span class="token string">'flex'</span><span class="token punctuation">,</span>
+              alignItems<span class="token punctuation">:</span> <span class="token string">'center'</span><span class="token punctuation">,</span>
+              gap<span class="token punctuation">:</span> <span class="token number">10</span><span class="token punctuation">,</span>
+              padding<span class="token punctuation">:</span> <span class="token string">'12px 0'</span><span class="token punctuation">,</span>
+              borderBottom<span class="token punctuation">:</span> <span class="token string">'1px solid #eee'</span><span class="token punctuation">,</span>
+            <span class="token punctuation">}</span><span class="token punctuation">}</span></span>
+          <span class="token punctuation">&gt;</span></span>
+            <span class="token punctuation">{</span><span class="token comment">/* Чекбокс переключает done */</span><span class="token punctuation">}</span>
+            <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>input</span>
+              <span class="token attr-name">type</span><span class="token attr-value"><span class="token punctuation">=</span><span class="token punctuation">"</span>checkbox<span class="token punctuation">"</span></span>
+              <span class="token attr-name">checked</span><span class="token script language-javascript"><span class="token punctuation">=</span><span class="token punctuation">{</span>todo<span class="token punctuation">.</span>done<span class="token punctuation">}</span></span>
+              <span class="token attr-name">onChange</span><span class="token script language-javascript"><span class="token punctuation">=</span><span class="token punctuation">{</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token operator">=&gt;</span> <span class="token function">handleToggle</span><span class="token punctuation">(</span>todo<span class="token punctuation">.</span>id<span class="token punctuation">)</span><span class="token punctuation">}</span></span>
+            <span class="token punctuation">/&gt;</span></span>
+
+            <span class="token punctuation">{</span><span class="token comment">/* Текст: если done — зачёркнут */</span><span class="token punctuation">}</span>
+            <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>span</span>
+              <span class="token attr-name">style</span><span class="token script language-javascript"><span class="token punctuation">=</span><span class="token punctuation">{</span><span class="token punctuation">{</span>
+                flex<span class="token punctuation">:</span> <span class="token number">1</span><span class="token punctuation">,</span>
+                textDecoration<span class="token punctuation">:</span> todo<span class="token punctuation">.</span>done <span class="token operator">?</span> <span class="token string">'line-through'</span> <span class="token punctuation">:</span> <span class="token string">'none'</span><span class="token punctuation">,</span>
+                color<span class="token punctuation">:</span> todo<span class="token punctuation">.</span>done <span class="token operator">?</span> <span class="token string">'#999'</span> <span class="token punctuation">:</span> <span class="token string">'#1e293b'</span><span class="token punctuation">,</span>
+              <span class="token punctuation">}</span><span class="token punctuation">}</span></span>
+            <span class="token punctuation">&gt;</span></span>
+              <span class="token punctuation">{</span>todo<span class="token punctuation">.</span>text<span class="token punctuation">}</span>
+            <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>span</span><span class="token punctuation">&gt;</span></span>
+
+            <span class="token punctuation">{</span><span class="token comment">/* Кнопка удаления */</span><span class="token punctuation">}</span>
+            <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>button</span>
+              <span class="token attr-name">onClick</span><span class="token script language-javascript"><span class="token punctuation">=</span><span class="token punctuation">{</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token operator">=&gt;</span> <span class="token function">handleDelete</span><span class="token punctuation">(</span>todo<span class="token punctuation">.</span>id<span class="token punctuation">)</span><span class="token punctuation">}</span></span>
+              <span class="token attr-name">style</span><span class="token script language-javascript"><span class="token punctuation">=</span><span class="token punctuation">{</span><span class="token punctuation">{</span>
+                background<span class="token punctuation">:</span> <span class="token string">'transparent'</span><span class="token punctuation">,</span>
+                border<span class="token punctuation">:</span> <span class="token string">'none'</span><span class="token punctuation">,</span>
+                cursor<span class="token punctuation">:</span> <span class="token string">'pointer'</span><span class="token punctuation">,</span>
+                fontSize<span class="token punctuation">:</span> <span class="token number">18</span><span class="token punctuation">,</span>
+                color<span class="token punctuation">:</span> <span class="token string">'#ef4444'</span><span class="token punctuation">,</span>
+              <span class="token punctuation">}</span><span class="token punctuation">}</span></span>
+            <span class="token punctuation">&gt;</span></span>
+              ✕
+            <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>button</span><span class="token punctuation">&gt;</span></span>
+          <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>li</span><span class="token punctuation">&gt;</span></span>
+        <span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">}</span>
+      <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>ul</span><span class="token punctuation">&gt;</span></span>
+    <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>div</span><span class="token punctuation">&gt;</span></span>
+  <span class="token punctuation">)</span><span class="token punctuation">;</span>
+<span class="token punctuation">}</span>
+
+<span class="token keyword">export</span> <span class="token keyword">default</span> App<span class="token punctuation">;</span>
+</code></pre>
+<p><strong>Что ты здесь применил:</strong></p>
+<ul>
+<li><code>useState</code> для массива, строки</li>
+<li>Функциональное обновление (<code>prev =&gt; ...</code>)</li>
+<li>Иммутабельность: <code>[...prev, x]</code>, <code>.map</code>, <code>.filter</code></li>
+<li>Controlled input</li>
+<li>Форма с <code>onSubmit</code> + <code>preventDefault</code></li>
+<li>События <code>onChange</code>, <code>onClick</code></li>
+<li>Условный рендер пустого состояния</li>
+</ul>
+<p><strong>✅ Чек-лист Части 3:</strong></p>
+<ul>
+<li class="task-list-item"><input type="checkbox" class="task-list-item-checkbox" disabled=""> Понимаю, что такое state и зачем нужен</li>
+<li class="task-list-item"><input type="checkbox" class="task-list-item-checkbox" disabled=""> Умею использовать <code>useState</code></li>
+<li class="task-list-item"><input type="checkbox" class="task-list-item-checkbox" disabled=""> Знаю правила хуков (только верхний уровень)</li>
+<li class="task-list-item"><input type="checkbox" class="task-list-item-checkbox" disabled=""> Использую функциональное обновление <code>prev =&gt; ...</code></li>
+<li class="task-list-item"><input type="checkbox" class="task-list-item-checkbox" disabled=""> Не мутирую состояние — создаю новое</li>
+<li class="task-list-item"><input type="checkbox" class="task-list-item-checkbox" disabled=""> Умею делать управляемые инпуты</li>
+<li class="task-list-item"><input type="checkbox" class="task-list-item-checkbox" disabled=""> Знаю, зачем <code>e.preventDefault()</code> в формах</li>
+</ul>
+<hr>
+<h1 id="📘-часть-4-списки-условия-стили">📘 Часть 4: Списки, условия, стили</h1>
+<h2 id="списки-в-react">4.1 Списки в React</h2>
+<p>Мы уже использовали <code>.map()</code> — теперь разберём подробно.</p>
+<h3 id="как-рендерить-массив">Как рендерить массив</h3>
+<pre class=" language-jsx"><code class="prism  language-jsx"><span class="token keyword">const</span> fruits <span class="token operator">=</span> <span class="token punctuation">[</span><span class="token string">'яблоко'</span><span class="token punctuation">,</span> <span class="token string">'банан'</span><span class="token punctuation">,</span> <span class="token string">'вишня'</span><span class="token punctuation">]</span><span class="token punctuation">;</span>
+
+<span class="token comment">// map превращает массив строк в массив JSX-элементов</span>
+<span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>ul</span><span class="token punctuation">&gt;</span></span>
+  <span class="token punctuation">{</span>fruits<span class="token punctuation">.</span><span class="token function">map</span><span class="token punctuation">(</span><span class="token punctuation">(</span>fruit<span class="token punctuation">)</span> <span class="token operator">=&gt;</span> <span class="token punctuation">(</span>
+    <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>li</span> <span class="token attr-name">key</span><span class="token script language-javascript"><span class="token punctuation">=</span><span class="token punctuation">{</span>fruit<span class="token punctuation">}</span></span><span class="token punctuation">&gt;</span></span><span class="token punctuation">{</span>fruit<span class="token punctuation">}</span><span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>li</span><span class="token punctuation">&gt;</span></span>
+  <span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">}</span>
+<span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>ul</span><span class="token punctuation">&gt;</span></span>
+</code></pre>
+<p>React умеет рендерить <strong>массивы JSX</strong> — просто вставляет их в разметку.</p>
+<h3 id="почему-key-критичен">Почему <code>key</code> критичен</h3>
+<p>Когда React видит массив, ему нужно понять: <strong>какой элемент какой</strong> при следующем рендере. <code>key</code> — уникальный идентификатор для React.</p>
+<pre class=" language-jsx"><code class="prism  language-jsx"><span class="token comment">// Список [A, B, C]. Пользователь удаляет B.</span>
+<span class="token comment">// Без key: React перерисует ВСЁ, что может вызвать баги с состоянием</span>
+<span class="token comment">// С key: React удалит только B, остальные не тронет</span>
+</code></pre>
+<h3 id="как-выбирать-key">Как выбирать <code>key</code></h3>
+<pre class=" language-jsx"><code class="prism  language-jsx"><span class="token comment">// ✅ Идеально: стабильный уникальный id из данных</span>
+<span class="token punctuation">{</span>items<span class="token punctuation">.</span><span class="token function">map</span><span class="token punctuation">(</span>item <span class="token operator">=&gt;</span> <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>Item</span> <span class="token attr-name">key</span><span class="token script language-javascript"><span class="token punctuation">=</span><span class="token punctuation">{</span>item<span class="token punctuation">.</span>id<span class="token punctuation">}</span></span> <span class="token attr-name">item</span><span class="token script language-javascript"><span class="token punctuation">=</span><span class="token punctuation">{</span>item<span class="token punctuation">}</span></span> <span class="token punctuation">/&gt;</span></span><span class="token punctuation">)</span><span class="token punctuation">}</span>
+
+<span class="token comment">// ⚠️ Приемлемо: если в массиве уникальные строки/числа</span>
+<span class="token punctuation">{</span>skills<span class="token punctuation">.</span><span class="token function">map</span><span class="token punctuation">(</span>skill <span class="token operator">=&gt;</span> <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>li</span> <span class="token attr-name">key</span><span class="token script language-javascript"><span class="token punctuation">=</span><span class="token punctuation">{</span>skill<span class="token punctuation">}</span></span><span class="token punctuation">&gt;</span></span><span class="token punctuation">{</span>skill<span class="token punctuation">}</span><span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>li</span><span class="token punctuation">&gt;</span></span><span class="token punctuation">)</span><span class="token punctuation">}</span>
+
+<span class="token comment">// ❌ Плохо: index как key</span>
+<span class="token punctuation">{</span>items<span class="token punctuation">.</span><span class="token function">map</span><span class="token punctuation">(</span><span class="token punctuation">(</span>item<span class="token punctuation">,</span> i<span class="token punctuation">)</span> <span class="token operator">=&gt;</span> <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>Item</span> <span class="token attr-name">key</span><span class="token script language-javascript"><span class="token punctuation">=</span><span class="token punctuation">{</span>i<span class="token punctuation">}</span></span> <span class="token attr-name">item</span><span class="token script language-javascript"><span class="token punctuation">=</span><span class="token punctuation">{</span>item<span class="token punctuation">}</span></span> <span class="token punctuation">/&gt;</span></span><span class="token punctuation">)</span><span class="token punctuation">}</span>
+</code></pre>
+<p><strong>Почему <code>index</code> плох:</strong></p>
+<ol>
+<li>При удалении элемента все последующие сдвигаются → React перепутает их</li>
+<li>Если у элементов есть своё состояние (например, инпут) — оно «переедет» не туда</li>
+<li>При сортировке списка всё ломается</li>
+</ol>
+<p><strong>Когда <code>index</code> допустим:</strong> если список <strong>никогда</strong> не меняет порядок, не фильтруется и не сортируется. Но лучше всегда иметь <code>id</code>.</p>
+<h3 id="вложенные-списки">Вложенные списки</h3>
+<pre class=" language-jsx"><code class="prism  language-jsx"><span class="token punctuation">{</span>categories<span class="token punctuation">.</span><span class="token function">map</span><span class="token punctuation">(</span>category <span class="token operator">=&gt;</span> <span class="token punctuation">(</span>
+  <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>div</span> <span class="token attr-name">key</span><span class="token script language-javascript"><span class="token punctuation">=</span><span class="token punctuation">{</span>category<span class="token punctuation">.</span>id<span class="token punctuation">}</span></span><span class="token punctuation">&gt;</span></span>
+    <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>h3</span><span class="token punctuation">&gt;</span></span><span class="token punctuation">{</span>category<span class="token punctuation">.</span>name<span class="token punctuation">}</span><span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>h3</span><span class="token punctuation">&gt;</span></span>
+    <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>ul</span><span class="token punctuation">&gt;</span></span>
+      <span class="token punctuation">{</span>category<span class="token punctuation">.</span>items<span class="token punctuation">.</span><span class="token function">map</span><span class="token punctuation">(</span>item <span class="token operator">=&gt;</span> <span class="token punctuation">(</span>
+        <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>li</span> <span class="token attr-name">key</span><span class="token script language-javascript"><span class="token punctuation">=</span><span class="token punctuation">{</span>item<span class="token punctuation">.</span>id<span class="token punctuation">}</span></span><span class="token punctuation">&gt;</span></span><span class="token punctuation">{</span>item<span class="token punctuation">.</span>name<span class="token punctuation">}</span><span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>li</span><span class="token punctuation">&gt;</span></span> <span class="token comment">// key уникален только среди соседей</span>
+      <span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">}</span>
+    <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>ul</span><span class="token punctuation">&gt;</span></span>
+  <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>div</span><span class="token punctuation">&gt;</span></span>
+<span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">}</span>
+</code></pre>
+<p>Важно: <code>key</code> должен быть уникальным <strong>среди соседей</strong> одного списка. То есть <code>item.id === category.id</code> — не проблема, потому что они на разных уровнях.</p>
+<hr>
+<h2 id="условный-рендер">4.2 Условный рендер</h2>
+<p>React не имеет <code>if</code> внутри JSX — используем JS-выражения.</p>
+<h3 id="способ-1--—-рендер-по-условию">Способ 1: <code>&amp;&amp;</code> — рендер по условию</h3>
+<pre class=" language-jsx"><code class="prism  language-jsx"><span class="token punctuation">{</span>isLoggedIn <span class="token operator">&amp;&amp;</span> <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>Dashboard</span> <span class="token punctuation">/&gt;</span></span><span class="token punctuation">}</span>
+</code></pre>
+<p>Работает так: если <code>isLoggedIn === true</code> → рендерится <code>&lt;Dashboard /&gt;</code>, иначе — <code>false</code>, и React ничего не рендерит.</p>
+<p>⚠️ <strong>Осторожно с числами:</strong> <code>{0 &amp;&amp; &lt;Component /&gt;}</code> отрендерит <strong><code>0</code></strong> на странице, потому что <code>0</code> — falsy, но рендерится!</p>
+<pre class=" language-jsx"><code class="prism  language-jsx"><span class="token comment">// ❌ Покажет "0" на странице, если count = 0</span>
+<span class="token punctuation">{</span>count <span class="token operator">&amp;&amp;</span> <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>p</span><span class="token punctuation">&gt;</span></span>Есть элементы<span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>p</span><span class="token punctuation">&gt;</span></span><span class="token punctuation">}</span>
+
+<span class="token comment">// ✅ Явное сравнение</span>
+<span class="token punctuation">{</span>count <span class="token operator">&gt;</span> <span class="token number">0</span> <span class="token operator">&amp;&amp;</span> <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>p</span><span class="token punctuation">&gt;</span></span>Есть элементы<span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>p</span><span class="token punctuation">&gt;</span></span><span class="token punctuation">}</span>
+</code></pre>
+<h3 id="способ-2-тернарный-оператор-—-ifelse">Способ 2: тернарный оператор — if/else</h3>
+<pre class=" language-jsx"><code class="prism  language-jsx"><span class="token punctuation">{</span>isLoading <span class="token operator">?</span> <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>Spinner</span> <span class="token punctuation">/&gt;</span></span> <span class="token punctuation">:</span> <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>Data</span> <span class="token punctuation">/&gt;</span></span><span class="token punctuation">}</span>
+</code></pre>
+<p>Для двух вариантов. Читается хорошо, если обе ветки короткие.</p>
+<h3 id="способ-3-ранний-return-—-для-больших-условий">Способ 3: ранний return — для больших условий</h3>
+<pre class=" language-jsx"><code class="prism  language-jsx"><span class="token keyword">function</span> <span class="token function">UserProfile</span><span class="token punctuation">(</span><span class="token punctuation">{</span> user <span class="token punctuation">}</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+  <span class="token keyword">if</span> <span class="token punctuation">(</span><span class="token operator">!</span>user<span class="token punctuation">)</span> <span class="token punctuation">{</span>
+    <span class="token keyword">return</span> <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>p</span><span class="token punctuation">&gt;</span></span>Пользователь не найден<span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>p</span><span class="token punctuation">&gt;</span></span><span class="token punctuation">;</span>
+  <span class="token punctuation">}</span>
+
+  <span class="token keyword">return</span> <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>div</span><span class="token punctuation">&gt;</span></span><span class="token punctuation">{</span>user<span class="token punctuation">.</span>name<span class="token punctuation">}</span><span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>div</span><span class="token punctuation">&gt;</span></span><span class="token punctuation">;</span>
+<span class="token punctuation">}</span>
+</code></pre>
+<p>Это <strong>самый читаемый</strong> способ, когда у компонента есть «особые» состояния (загрузка, ошибка, пустота).</p>
+<h3 id="способ-4-словарь-объект-—-для-множества-вариантов">Способ 4: словарь-объект — для множества вариантов</h3>
+<pre class=" language-jsx"><code class="prism  language-jsx"><span class="token keyword">function</span> <span class="token function">StatusIcon</span><span class="token punctuation">(</span><span class="token punctuation">{</span> status <span class="token punctuation">}</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+  <span class="token keyword">const</span> icons <span class="token operator">=</span> <span class="token punctuation">{</span>
+    loading<span class="token punctuation">:</span> <span class="token string">'⏳'</span><span class="token punctuation">,</span>
+    success<span class="token punctuation">:</span> <span class="token string">'✅'</span><span class="token punctuation">,</span>
+    error<span class="token punctuation">:</span> <span class="token string">'❌'</span><span class="token punctuation">,</span>
+  <span class="token punctuation">}</span><span class="token punctuation">;</span>
+  <span class="token keyword">return</span> <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>span</span><span class="token punctuation">&gt;</span></span><span class="token punctuation">{</span>icons<span class="token punctuation">[</span>status<span class="token punctuation">]</span><span class="token punctuation">}</span><span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>span</span><span class="token punctuation">&gt;</span></span><span class="token punctuation">;</span>
+<span class="token punctuation">}</span>
+</code></pre>
+<p>Чище, чем лестница <code>if/else if/else if</code>.</p>
+<h3 id="комбинированный-пример-состояния-запроса">Комбинированный пример: состояния запроса</h3>
+<pre class=" language-jsx"><code class="prism  language-jsx"><span class="token keyword">function</span> <span class="token function">DataView</span><span class="token punctuation">(</span><span class="token punctuation">{</span> loading<span class="token punctuation">,</span> error<span class="token punctuation">,</span> data <span class="token punctuation">}</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+  <span class="token keyword">if</span> <span class="token punctuation">(</span>loading<span class="token punctuation">)</span> <span class="token keyword">return</span> <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>p</span><span class="token punctuation">&gt;</span></span>Загрузка<span class="token operator">...</span><span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>p</span><span class="token punctuation">&gt;</span></span><span class="token punctuation">;</span>
+  <span class="token keyword">if</span> <span class="token punctuation">(</span>error<span class="token punctuation">)</span> <span class="token keyword">return</span> <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>p</span> <span class="token attr-name">style</span><span class="token script language-javascript"><span class="token punctuation">=</span><span class="token punctuation">{</span><span class="token punctuation">{</span> color<span class="token punctuation">:</span> <span class="token string">'red'</span> <span class="token punctuation">}</span><span class="token punctuation">}</span></span><span class="token punctuation">&gt;</span></span>Ошибка<span class="token punctuation">:</span> <span class="token punctuation">{</span>error<span class="token punctuation">}</span><span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>p</span><span class="token punctuation">&gt;</span></span><span class="token punctuation">;</span>
+  <span class="token keyword">if</span> <span class="token punctuation">(</span><span class="token operator">!</span>data <span class="token operator">||</span> data<span class="token punctuation">.</span>length <span class="token operator">===</span> <span class="token number">0</span><span class="token punctuation">)</span> <span class="token keyword">return</span> <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>p</span><span class="token punctuation">&gt;</span></span>Данных нет<span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>p</span><span class="token punctuation">&gt;</span></span><span class="token punctuation">;</span>
+
+  <span class="token keyword">return</span> <span class="token punctuation">(</span>
+    <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>ul</span><span class="token punctuation">&gt;</span></span>
+      <span class="token punctuation">{</span>data<span class="token punctuation">.</span><span class="token function">map</span><span class="token punctuation">(</span>item <span class="token operator">=&gt;</span> <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>li</span> <span class="token attr-name">key</span><span class="token script language-javascript"><span class="token punctuation">=</span><span class="token punctuation">{</span>item<span class="token punctuation">.</span>id<span class="token punctuation">}</span></span><span class="token punctuation">&gt;</span></span><span class="token punctuation">{</span>item<span class="token punctuation">.</span>name<span class="token punctuation">}</span><span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>li</span><span class="token punctuation">&gt;</span></span><span class="token punctuation">)</span><span class="token punctuation">}</span>
+    <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>ul</span><span class="token punctuation">&gt;</span></span>
+  <span class="token punctuation">)</span><span class="token punctuation">;</span>
+<span class="token punctuation">}</span>
+</code></pre>
+<p>Такой паттерн ты будешь писать постоянно.</p>
+<hr>
+<h2 id="стилизация-в-react">4.3 Стилизация в React</h2>
+<h3 id="способ-1-инлайн-стили">Способ 1: инлайн-стили</h3>
+<pre class=" language-jsx"><code class="prism  language-jsx"><span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>div</span> <span class="token attr-name">style</span><span class="token script language-javascript"><span class="token punctuation">=</span><span class="token punctuation">{</span><span class="token punctuation">{</span> color<span class="token punctuation">:</span> <span class="token string">'red'</span><span class="token punctuation">,</span> fontSize<span class="token punctuation">:</span> <span class="token number">16</span><span class="token punctuation">,</span> marginTop<span class="token punctuation">:</span> <span class="token number">10</span> <span class="token punctuation">}</span><span class="token punctuation">}</span></span><span class="token punctuation">&gt;</span></span>
+</code></pre>
+<p><strong>Плюсы:</strong> быстро, локально, зависит от состояния.<br>
+<strong>Минусы:</strong> нет <code>:hover</code>, нет медиа-запросов, verbose для больших блоков.</p>
+<h3 id="способ-2-обычный-css-файл">Способ 2: обычный CSS-файл</h3>
+<pre class=" language-jsx"><code class="prism  language-jsx"><span class="token keyword">import</span> <span class="token string">'./App.css'</span><span class="token punctuation">;</span>
+
+<span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>div</span> <span class="token attr-name">className</span><span class="token attr-value"><span class="token punctuation">=</span><span class="token punctuation">"</span>card<span class="token punctuation">"</span></span><span class="token punctuation">&gt;</span></span><span class="token operator">...</span><span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>div</span><span class="token punctuation">&gt;</span></span>
+</code></pre>
+<pre class=" language-css"><code class="prism  language-css"><span class="token comment">/* App.css */</span>
+<span class="token selector"><span class="token class">.card</span> </span><span class="token punctuation">{</span> <span class="token property">padding</span><span class="token punctuation">:</span> <span class="token number">20</span>px<span class="token punctuation">;</span> <span class="token property">border-radius</span><span class="token punctuation">:</span> <span class="token number">8</span>px<span class="token punctuation">;</span> <span class="token punctuation">}</span>
+<span class="token selector"><span class="token class">.card</span><span class="token pseudo-class">:hover</span> </span><span class="token punctuation">{</span> <span class="token property">box-shadow</span><span class="token punctuation">:</span> <span class="token number">0</span> <span class="token number">4</span>px <span class="token number">12</span>px <span class="token function">rgba</span><span class="token punctuation">(</span><span class="token number">0</span>,<span class="token number">0</span>,<span class="token number">0</span>,<span class="token number">0.1</span><span class="token punctuation">)</span><span class="token punctuation">;</span> <span class="token punctuation">}</span>
+</code></pre>
+<p><strong>Плюсы:</strong> все возможности CSS.<br>
+<strong>Минусы:</strong> глобальная область видимости — легко получить конфликты имён.</p>
+<h3 id="способ-3-css-модули">Способ 3: CSS-модули</h3>
+<pre class=" language-css"><code class="prism  language-css"><span class="token comment">/* Button.module.css */</span>
+<span class="token selector"><span class="token class">.primary</span> </span><span class="token punctuation">{</span> <span class="token property">background</span><span class="token punctuation">:</span> blue<span class="token punctuation">;</span> <span class="token property">color</span><span class="token punctuation">:</span> white<span class="token punctuation">;</span> <span class="token punctuation">}</span>
+<span class="token selector"><span class="token class">.danger</span> </span><span class="token punctuation">{</span> <span class="token property">background</span><span class="token punctuation">:</span> red<span class="token punctuation">;</span> <span class="token property">color</span><span class="token punctuation">:</span> white<span class="token punctuation">;</span> <span class="token punctuation">}</span>
+</code></pre>
+<pre class=" language-jsx"><code class="prism  language-jsx"><span class="token keyword">import</span> styles <span class="token keyword">from</span> <span class="token string">'./Button.module.css'</span><span class="token punctuation">;</span>
+
+<span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>button</span> <span class="token attr-name">className</span><span class="token script language-javascript"><span class="token punctuation">=</span><span class="token punctuation">{</span>styles<span class="token punctuation">.</span>primary<span class="token punctuation">}</span></span><span class="token punctuation">&gt;</span></span>ОК<span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>button</span><span class="token punctuation">&gt;</span></span>
+</code></pre>
+<p><strong>Плюсы:</strong> локальные имена (генерируются уникальные классы), нет конфликтов.<br>
+<strong>Минусы:</strong> чуть больше boilerplate.</p>
+<h3 id="способ-4-tailwind-css-современный-стандарт">Способ 4: Tailwind CSS (современный стандарт)</h3>
+<pre class=" language-jsx"><code class="prism  language-jsx"><span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>button</span> <span class="token attr-name">className</span><span class="token attr-value"><span class="token punctuation">=</span><span class="token punctuation">"</span>px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600<span class="token punctuation">"</span></span><span class="token punctuation">&gt;</span></span>
+  Нажми
+<span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>button</span><span class="token punctuation">&gt;</span></span>
+</code></pre>
+<p><strong>Плюсы:</strong> быстро, консистентно, нет CSS-файлов.<br>
+<strong>Минусы:</strong> длинные className, порог входа.</p>
+<h3 id="динамические-классы">Динамические классы</h3>
+<pre class=" language-jsx"><code class="prism  language-jsx"><span class="token comment">// Комбинируем строки через шаблонные литералы или утилиты</span>
+<span class="token operator">&lt;</span>div className<span class="token operator">=</span><span class="token punctuation">{</span><span class="token template-string"><span class="token string">`card </span><span class="token interpolation"><span class="token interpolation-punctuation punctuation">${</span>isActive <span class="token operator">?</span> <span class="token string">'card--active'</span> <span class="token punctuation">:</span> <span class="token string">''</span><span class="token interpolation-punctuation punctuation">}</span></span><span class="token string">`</span></span><span class="token punctuation">}</span><span class="token operator">&gt;</span>
+
+<span class="token comment">// Или через массив + filter + join</span>
+<span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>div</span> <span class="token attr-name">className</span><span class="token script language-javascript"><span class="token punctuation">=</span><span class="token punctuation">{</span><span class="token punctuation">[</span><span class="token string">'card'</span><span class="token punctuation">,</span> isActive <span class="token operator">&amp;&amp;</span> <span class="token string">'card--active'</span><span class="token punctuation">]</span><span class="token punctuation">.</span><span class="token function">filter</span><span class="token punctuation">(</span>Boolean<span class="token punctuation">)</span><span class="token punctuation">.</span><span class="token function">join</span><span class="token punctuation">(</span><span class="token string">' '</span><span class="token punctuation">)</span><span class="token punctuation">}</span></span><span class="token punctuation">&gt;</span></span>
+</code></pre>
+<hr>
+<h2 id="🎯-практика-часть-4-todo-приложение-расширенная-версия">4.4 🎯 Практика Часть 4: Todo-приложение (расширенная версия)</h2>
+<p>Доработаем todo из Части 3: добавим <strong>фильтры</strong>, <strong>счётчик</strong>, <strong>редактирование</strong> и <strong>приоритеты</strong>.</p>
+<h3 id="финальная-структура">Финальная структура</h3>
+<pre><code>src/
+├── components/
+│   ├── TodoForm.jsx
+│   ├── TodoItem.jsx
+│   ├── TodoList.jsx
+│   └── Filters.jsx
+├── App.jsx
+└── index.css
+</code></pre>
+<h3 id="srccomponentstodoform.jsx"><code>src/components/TodoForm.jsx</code></h3>
+<pre class=" language-jsx"><code class="prism  language-jsx"><span class="token keyword">import</span> <span class="token punctuation">{</span> useState <span class="token punctuation">}</span> <span class="token keyword">from</span> <span class="token string">'react'</span><span class="token punctuation">;</span>
+
+<span class="token comment">// Форма добавления задачи.</span>
+<span class="token comment">// Принимает onAdd — колбэк от родителя.</span>
+<span class="token keyword">function</span> <span class="token function">TodoForm</span><span class="token punctuation">(</span><span class="token punctuation">{</span> onAdd <span class="token punctuation">}</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+  <span class="token keyword">const</span> <span class="token punctuation">[</span>text<span class="token punctuation">,</span> setText<span class="token punctuation">]</span> <span class="token operator">=</span> <span class="token function">useState</span><span class="token punctuation">(</span><span class="token string">''</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+  <span class="token keyword">const</span> <span class="token punctuation">[</span>priority<span class="token punctuation">,</span> setPriority<span class="token punctuation">]</span> <span class="token operator">=</span> <span class="token function">useState</span><span class="token punctuation">(</span><span class="token string">'medium'</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+
+  <span class="token keyword">function</span> <span class="token function">handleSubmit</span><span class="token punctuation">(</span>e<span class="token punctuation">)</span> <span class="token punctuation">{</span>
+    e<span class="token punctuation">.</span><span class="token function">preventDefault</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+
+    <span class="token keyword">const</span> trimmed <span class="token operator">=</span> text<span class="token punctuation">.</span><span class="token function">trim</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+    <span class="token keyword">if</span> <span class="token punctuation">(</span><span class="token operator">!</span>trimmed<span class="token punctuation">)</span> <span class="token keyword">return</span><span class="token punctuation">;</span>
+
+    <span class="token comment">// Вызываем колбэк родителя, передавая ему данные</span>
+    <span class="token function">onAdd</span><span class="token punctuation">(</span><span class="token punctuation">{</span> text<span class="token punctuation">:</span> trimmed<span class="token punctuation">,</span> priority <span class="token punctuation">}</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+
+    <span class="token comment">// Сбрасываем форму</span>
+    <span class="token function">setText</span><span class="token punctuation">(</span><span class="token string">''</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+    <span class="token function">setPriority</span><span class="token punctuation">(</span><span class="token string">'medium'</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+  <span class="token punctuation">}</span>
+
+  <span class="token keyword">return</span> <span class="token punctuation">(</span>
+    <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>form</span>
+      <span class="token attr-name">onSubmit</span><span class="token script language-javascript"><span class="token punctuation">=</span><span class="token punctuation">{</span>handleSubmit<span class="token punctuation">}</span></span>
+      <span class="token attr-name">style</span><span class="token script language-javascript"><span class="token punctuation">=</span><span class="token punctuation">{</span><span class="token punctuation">{</span> display<span class="token punctuation">:</span> <span class="token string">'flex'</span><span class="token punctuation">,</span> gap<span class="token punctuation">:</span> <span class="token number">8</span><span class="token punctuation">,</span> marginBottom<span class="token punctuation">:</span> <span class="token number">16</span> <span class="token punctuation">}</span><span class="token punctuation">}</span></span>
+    <span class="token punctuation">&gt;</span></span>
+      <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>input</span>
+        <span class="token attr-name">value</span><span class="token script language-javascript"><span class="token punctuation">=</span><span class="token punctuation">{</span>text<span class="token punctuation">}</span></span>
+        <span class="token attr-name">onChange</span><span class="token script language-javascript"><span class="token punctuation">=</span><span class="token punctuation">{</span><span class="token punctuation">(</span>e<span class="token punctuation">)</span> <span class="token operator">=&gt;</span> <span class="token function">setText</span><span class="token punctuation">(</span>e<span class="token punctuation">.</span>target<span class="token punctuation">.</span>value<span class="token punctuation">)</span><span class="token punctuation">}</span></span>
+        <span class="token attr-name">placeholder</span><span class="token attr-value"><span class="token punctuation">=</span><span class="token punctuation">"</span>Что нужно сделать?<span class="token punctuation">"</span></span>
+        <span class="token attr-name">style</span><span class="token script language-javascript"><span class="token punctuation">=</span><span class="token punctuation">{</span><span class="token punctuation">{</span> flex<span class="token punctuation">:</span> <span class="token number">1</span><span class="token punctuation">,</span> padding<span class="token punctuation">:</span> <span class="token number">10</span><span class="token punctuation">,</span> borderRadius<span class="token punctuation">:</span> <span class="token number">8</span><span class="token punctuation">,</span> border<span class="token punctuation">:</span> <span class="token string">'1px solid #ddd'</span> <span class="token punctuation">}</span><span class="token punctuation">}</span></span>
+      <span class="token punctuation">/&gt;</span></span>
+
+      <span class="token punctuation">{</span><span class="token comment">/* Select приоритета */</span><span class="token punctuation">}</span>
+      <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>select</span>
+        <span class="token attr-name">value</span><span class="token script language-javascript"><span class="token punctuation">=</span><span class="token punctuation">{</span>priority<span class="token punctuation">}</span></span>
+        <span class="token attr-name">onChange</span><span class="token script language-javascript"><span class="token punctuation">=</span><span class="token punctuation">{</span><span class="token punctuation">(</span>e<span class="token punctuation">)</span> <span class="token operator">=&gt;</span> <span class="token function">setPriority</span><span class="token punctuation">(</span>e<span class="token punctuation">.</span>target<span class="token punctuation">.</span>value<span class="token punctuation">)</span><span class="token punctuation">}</span></span>
+        <span class="token attr-name">style</span><span class="token script language-javascript"><span class="token punctuation">=</span><span class="token punctuation">{</span><span class="token punctuation">{</span> padding<span class="token punctuation">:</span> <span class="token number">10</span><span class="token punctuation">,</span> borderRadius<span class="token punctuation">:</span> <span class="token number">8</span><span class="token punctuation">,</span> border<span class="token punctuation">:</span> <span class="token string">'1px solid #ddd'</span> <span class="token punctuation">}</span><span class="token punctuation">}</span></span>
+      <span class="token punctuation">&gt;</span></span>
+        <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>option</span> <span class="token attr-name">value</span><span class="token attr-value"><span class="token punctuation">=</span><span class="token punctuation">"</span>low<span class="token punctuation">"</span></span><span class="token punctuation">&gt;</span></span>Низкий<span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>option</span><span class="token punctuation">&gt;</span></span>
+        <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>option</span> <span class="token attr-name">value</span><span class="token attr-value"><span class="token punctuation">=</span><span class="token punctuation">"</span>medium<span class="token punctuation">"</span></span><span class="token punctuation">&gt;</span></span>Средний<span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>option</span><span class="token punctuation">&gt;</span></span>
+        <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>option</span> <span class="token attr-name">value</span><span class="token attr-value"><span class="token punctuation">=</span><span class="token punctuation">"</span>high<span class="token punctuation">"</span></span><span class="token punctuation">&gt;</span></span>Высокий<span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>option</span><span class="token punctuation">&gt;</span></span>
+      <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>select</span><span class="token punctuation">&gt;</span></span>
+
+      <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>button</span>
+        <span class="token attr-name">type</span><span class="token attr-value"><span class="token punctuation">=</span><span class="token punctuation">"</span>submit<span class="token punctuation">"</span></span>
+        <span class="token attr-name">style</span><span class="token script language-javascript"><span class="token punctuation">=</span><span class="token punctuation">{</span><span class="token punctuation">{</span>
+          padding<span class="token punctuation">:</span> <span class="token string">'10px 20px'</span><span class="token punctuation">,</span>
+          background<span class="token punctuation">:</span> <span class="token string">'#3b82f6'</span><span class="token punctuation">,</span>
+          color<span class="token punctuation">:</span> <span class="token string">'white'</span><span class="token punctuation">,</span>
+          border<span class="token punctuation">:</span> <span class="token string">'none'</span><span class="token punctuation">,</span>
+          borderRadius<span class="token punctuation">:</span> <span class="token number">8</span><span class="token punctuation">,</span>
+          cursor<span class="token punctuation">:</span> <span class="token string">'pointer'</span><span class="token punctuation">,</span>
+          fontWeight<span class="token punctuation">:</span> <span class="token number">600</span><span class="token punctuation">,</span>
+        <span class="token punctuation">}</span><span class="token punctuation">}</span></span>
+      <span class="token punctuation">&gt;</span></span>
+        Добавить
+      <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>button</span><span class="token punctuation">&gt;</span></span>
+    <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>form</span><span class="token punctuation">&gt;</span></span>
+  <span class="token punctuation">)</span><span class="token punctuation">;</span>
+<span class="token punctuation">}</span>
+
+<span class="token keyword">export</span> <span class="token keyword">default</span> TodoForm<span class="token punctuation">;</span>
+</code></pre>
+<h3 id="srccomponentsfilters.jsx"><code>src/components/Filters.jsx</code></h3>
+<pre class=" language-jsx"><code class="prism  language-jsx"><span class="token comment">// Компонент фильтров.</span>
+<span class="token comment">// Принимает:</span>
+<span class="token comment">//   current — текущий фильтр ('all' | 'active' | 'done')</span>
+<span class="token comment">//   onChange — колбэк смены фильтра</span>
+<span class="token comment">//   counts — объект { all, active, done } для отображения чисел</span>
+<span class="token keyword">function</span> <span class="token function">Filters</span><span class="token punctuation">(</span><span class="token punctuation">{</span> current<span class="token punctuation">,</span> onChange<span class="token punctuation">,</span> counts <span class="token punctuation">}</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+  <span class="token keyword">const</span> filters <span class="token operator">=</span> <span class="token punctuation">[</span>
+    <span class="token punctuation">{</span> key<span class="token punctuation">:</span> <span class="token string">'all'</span><span class="token punctuation">,</span> label<span class="token punctuation">:</span> <span class="token string">'Все'</span><span class="token punctuation">,</span> count<span class="token punctuation">:</span> counts<span class="token punctuation">.</span>all <span class="token punctuation">}</span><span class="token punctuation">,</span>
+    <span class="token punctuation">{</span> key<span class="token punctuation">:</span> <span class="token string">'active'</span><span class="token punctuation">,</span> label<span class="token punctuation">:</span> <span class="token string">'Активные'</span><span class="token punctuation">,</span> count<span class="token punctuation">:</span> counts<span class="token punctuation">.</span>active <span class="token punctuation">}</span><span class="token punctuation">,</span>
+    <span class="token punctuation">{</span> key<span class="token punctuation">:</span> <span class="token string">'done'</span><span class="token punctuation">,</span> label<span class="token punctuation">:</span> <span class="token string">'Выполненные'</span><span class="token punctuation">,</span> count<span class="token punctuation">:</span> counts<span class="token punctuation">.</span>done <span class="token punctuation">}</span><span class="token punctuation">,</span>
+  <span class="token punctuation">]</span><span class="token punctuation">;</span>
+
+  <span class="token keyword">return</span> <span class="token punctuation">(</span>
+    <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>div</span> <span class="token attr-name">style</span><span class="token script language-javascript"><span class="token punctuation">=</span><span class="token punctuation">{</span><span class="token punctuation">{</span> display<span class="token punctuation">:</span> <span class="token string">'flex'</span><span class="token punctuation">,</span> gap<span class="token punctuation">:</span> <span class="token number">8</span><span class="token punctuation">,</span> marginBottom<span class="token punctuation">:</span> <span class="token number">16</span> <span class="token punctuation">}</span><span class="token punctuation">}</span></span><span class="token punctuation">&gt;</span></span>
+      <span class="token punctuation">{</span>filters<span class="token punctuation">.</span><span class="token function">map</span><span class="token punctuation">(</span><span class="token punctuation">(</span>filter<span class="token punctuation">)</span> <span class="token operator">=&gt;</span> <span class="token punctuation">{</span>
+        <span class="token comment">// Тернарник для выбора стиля активной кнопки</span>
+        <span class="token keyword">const</span> isActive <span class="token operator">=</span> filter<span class="token punctuation">.</span>key <span class="token operator">===</span> current<span class="token punctuation">;</span>
+        <span class="token keyword">return</span> <span class="token punctuation">(</span>
+          <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>button</span>
+            <span class="token attr-name">key</span><span class="token script language-javascript"><span class="token punctuation">=</span><span class="token punctuation">{</span>filter<span class="token punctuation">.</span>key<span class="token punctuation">}</span></span>
+            <span class="token attr-name">onClick</span><span class="token script language-javascript"><span class="token punctuation">=</span><span class="token punctuation">{</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token operator">=&gt;</span> <span class="token function">onChange</span><span class="token punctuation">(</span>filter<span class="token punctuation">.</span>key<span class="token punctuation">)</span><span class="token punctuation">}</span></span>
+            <span class="token attr-name">style</span><span class="token script language-javascript"><span class="token punctuation">=</span><span class="token punctuation">{</span><span class="token punctuation">{</span>
+              padding<span class="token punctuation">:</span> <span class="token string">'8px 14px'</span><span class="token punctuation">,</span>
+              border<span class="token punctuation">:</span> <span class="token string">'1px solid #ddd'</span><span class="token punctuation">,</span>
+              borderRadius<span class="token punctuation">:</span> <span class="token number">8</span><span class="token punctuation">,</span>
+              background<span class="token punctuation">:</span> isActive <span class="token operator">?</span> <span class="token string">'#3b82f6'</span> <span class="token punctuation">:</span> <span class="token string">'white'</span><span class="token punctuation">,</span>
+              color<span class="token punctuation">:</span> isActive <span class="token operator">?</span> <span class="token string">'white'</span> <span class="token punctuation">:</span> <span class="token string">'#374151'</span><span class="token punctuation">,</span>
+              cursor<span class="token punctuation">:</span> <span class="token string">'pointer'</span><span class="token punctuation">,</span>
+              fontWeight<span class="token punctuation">:</span> <span class="token number">500</span><span class="token punctuation">,</span>
+            <span class="token punctuation">}</span><span class="token punctuation">}</span></span>
+          <span class="token punctuation">&gt;</span></span>
+            <span class="token punctuation">{</span>filter<span class="token punctuation">.</span>label<span class="token punctuation">}</span> <span class="token punctuation">(</span><span class="token punctuation">{</span>filter<span class="token punctuation">.</span>count<span class="token punctuation">}</span><span class="token punctuation">)</span>
+          <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>button</span><span class="token punctuation">&gt;</span></span>
+        <span class="token punctuation">)</span><span class="token punctuation">;</span>
+      <span class="token punctuation">}</span><span class="token punctuation">)</span><span class="token punctuation">}</span>
+    <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>div</span><span class="token punctuation">&gt;</span></span>
+  <span class="token punctuation">)</span><span class="token punctuation">;</span>
+<span class="token punctuation">}</span>
+
+<span class="token keyword">export</span> <span class="token keyword">default</span> Filters<span class="token punctuation">;</span>
+</code></pre>
+<h3 id="srccomponentstodoitem.jsx"><code>src/components/TodoItem.jsx</code></h3>
+<pre class=" language-jsx"><code class="prism  language-jsx"><span class="token keyword">import</span> <span class="token punctuation">{</span> useState <span class="token punctuation">}</span> <span class="token keyword">from</span> <span class="token string">'react'</span><span class="token punctuation">;</span>
+
+<span class="token comment">// Один элемент списка. Принимает:</span>
+<span class="token comment">//   todo — объект задачи</span>
+<span class="token comment">//   onToggle — переключить done</span>
+<span class="token comment">//   onDelete — удалить</span>
+<span class="token comment">//   onEdit — сохранить новое название</span>
+<span class="token keyword">function</span> <span class="token function">TodoItem</span><span class="token punctuation">(</span><span class="token punctuation">{</span> todo<span class="token punctuation">,</span> onToggle<span class="token punctuation">,</span> onDelete<span class="token punctuation">,</span> onEdit <span class="token punctuation">}</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+  <span class="token comment">// Локальное состояние редактирования — НЕ нужно родителю</span>
+  <span class="token keyword">const</span> <span class="token punctuation">[</span>isEditing<span class="token punctuation">,</span> setIsEditing<span class="token punctuation">]</span> <span class="token operator">=</span> <span class="token function">useState</span><span class="token punctuation">(</span><span class="token boolean">false</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+  <span class="token keyword">const</span> <span class="token punctuation">[</span>editText<span class="token punctuation">,</span> setEditText<span class="token punctuation">]</span> <span class="token operator">=</span> <span class="token function">useState</span><span class="token punctuation">(</span>todo<span class="token punctuation">.</span>text<span class="token punctuation">)</span><span class="token punctuation">;</span>
+
+  <span class="token comment">// Цвет левой полоски по приоритету</span>
+  <span class="token keyword">const</span> priorityColors <span class="token operator">=</span> <span class="token punctuation">{</span>
+    low<span class="token punctuation">:</span> <span class="token string">'#10b981'</span><span class="token punctuation">,</span>
+    medium<span class="token punctuation">:</span> <span class="token string">'#f59e0b'</span><span class="token punctuation">,</span>
+    high<span class="token punctuation">:</span> <span class="token string">'#ef4444'</span><span class="token punctuation">,</span>
+  <span class="token punctuation">}</span><span class="token punctuation">;</span>
+
+  <span class="token keyword">function</span> <span class="token function">handleSave</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+    <span class="token keyword">const</span> trimmed <span class="token operator">=</span> editText<span class="token punctuation">.</span><span class="token function">trim</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+    <span class="token keyword">if</span> <span class="token punctuation">(</span>trimmed<span class="token punctuation">)</span> <span class="token punctuation">{</span>
+      <span class="token function">onEdit</span><span class="token punctuation">(</span>todo<span class="token punctuation">.</span>id<span class="token punctuation">,</span> trimmed<span class="token punctuation">)</span><span class="token punctuation">;</span>
+    <span class="token punctuation">}</span>
+    <span class="token function">setIsEditing</span><span class="token punctuation">(</span><span class="token boolean">false</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+  <span class="token punctuation">}</span>
+
+  <span class="token keyword">function</span> <span class="token function">handleCancel</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+    <span class="token function">setEditText</span><span class="token punctuation">(</span>todo<span class="token punctuation">.</span>text<span class="token punctuation">)</span><span class="token punctuation">;</span> <span class="token comment">// откатываем изменения</span>
+    <span class="token function">setIsEditing</span><span class="token punctuation">(</span><span class="token boolean">false</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+  <span class="token punctuation">}</span>
+
+  <span class="token keyword">function</span> <span class="token function">handleKeyDown</span><span class="token punctuation">(</span>e<span class="token punctuation">)</span> <span class="token punctuation">{</span>
+    <span class="token keyword">if</span> <span class="token punctuation">(</span>e<span class="token punctuation">.</span>key <span class="token operator">===</span> <span class="token string">'Enter'</span><span class="token punctuation">)</span> <span class="token function">handleSave</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+    <span class="token keyword">if</span> <span class="token punctuation">(</span>e<span class="token punctuation">.</span>key <span class="token operator">===</span> <span class="token string">'Escape'</span><span class="token punctuation">)</span> <span class="token function">handleCancel</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+  <span class="token punctuation">}</span>
+
+  <span class="token keyword">return</span> <span class="token punctuation">(</span>
+    <span class="token operator">&lt;</span>li
+      style<span class="token operator">=</span><span class="token punctuation">{</span><span class="token punctuation">{</span>
+        display<span class="token punctuation">:</span> <span class="token string">'flex'</span><span class="token punctuation">,</span>
+        alignItems<span class="token punctuation">:</span> <span class="token string">'center'</span><span class="token punctuation">,</span>
+        gap<span class="token punctuation">:</span> <span class="token number">10</span><span class="token punctuation">,</span>
+        padding<span class="token punctuation">:</span> <span class="token string">'12px 12px 12px 8px'</span><span class="token punctuation">,</span>
+        borderBottom<span class="token punctuation">:</span> <span class="token string">'1px solid #eee'</span><span class="token punctuation">,</span>
+        borderLeft<span class="token punctuation">:</span> <span class="token template-string"><span class="token string">`4px solid </span><span class="token interpolation"><span class="token interpolation-punctuation punctuation">${</span>priorityColors<span class="token punctuation">[</span>todo<span class="token punctuation">.</span>priority<span class="token punctuation">]</span><span class="token interpolation-punctuation punctuation">}</span></span><span class="token string">`</span></span><span class="token punctuation">,</span>
+      <span class="token punctuation">}</span><span class="token punctuation">}</span>
+    <span class="token operator">&gt;</span>
+      <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>input</span>
+        <span class="token attr-name">type</span><span class="token attr-value"><span class="token punctuation">=</span><span class="token punctuation">"</span>checkbox<span class="token punctuation">"</span></span>
+        <span class="token attr-name">checked</span><span class="token script language-javascript"><span class="token punctuation">=</span><span class="token punctuation">{</span>todo<span class="token punctuation">.</span>done<span class="token punctuation">}</span></span>
+        <span class="token attr-name">onChange</span><span class="token script language-javascript"><span class="token punctuation">=</span><span class="token punctuation">{</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token operator">=&gt;</span> <span class="token function">onToggle</span><span class="token punctuation">(</span>todo<span class="token punctuation">.</span>id<span class="token punctuation">)</span><span class="token punctuation">}</span></span>
+      <span class="token punctuation">/&gt;</span></span>
+
+      <span class="token punctuation">{</span><span class="token comment">/* Условный рендер: редактируем или показываем текст */</span><span class="token punctuation">}</span>
+      <span class="token punctuation">{</span>isEditing <span class="token operator">?</span> <span class="token punctuation">(</span>
+        <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>input</span>
+          <span class="token attr-name">value</span><span class="token script language-javascript"><span class="token punctuation">=</span><span class="token punctuation">{</span>editText<span class="token punctuation">}</span></span>
+          <span class="token attr-name">onChange</span><span class="token script language-javascript"><span class="token punctuation">=</span><span class="token punctuation">{</span><span class="token punctuation">(</span>e<span class="token punctuation">)</span> <span class="token operator">=&gt;</span> <span class="token function">setEditText</span><span class="token punctuation">(</span>e<span class="token punctuation">.</span>target<span class="token punctuation">.</span>value<span class="token punctuation">)</span><span class="token punctuation">}</span></span>
+          <span class="token attr-name">onKeyDown</span><span class="token script language-javascript"><span class="token punctuation">=</span><span class="token punctuation">{</span>handleKeyDown<span class="token punctuation">}</span></span>
+          <span class="token attr-name">autoFocus</span>
+          <span class="token attr-name">style</span><span class="token script language-javascript"><span class="token punctuation">=</span><span class="token punctuation">{</span><span class="token punctuation">{</span> flex<span class="token punctuation">:</span> <span class="token number">1</span><span class="token punctuation">,</span> padding<span class="token punctuation">:</span> <span class="token number">6</span><span class="token punctuation">,</span> borderRadius<span class="token punctuation">:</span> <span class="token number">6</span><span class="token punctuation">,</span> border<span class="token punctuation">:</span> <span class="token string">'1px solid #ddd'</span> <span class="token punctuation">}</span><span class="token punctuation">}</span></span>
+        <span class="token punctuation">/&gt;</span></span>
+      <span class="token punctuation">)</span> <span class="token punctuation">:</span> <span class="token punctuation">(</span>
+        <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>span</span>
+          <span class="token attr-name">onDoubleClick</span><span class="token script language-javascript"><span class="token punctuation">=</span><span class="token punctuation">{</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token operator">=&gt;</span> <span class="token function">setIsEditing</span><span class="token punctuation">(</span><span class="token boolean">true</span><span class="token punctuation">)</span><span class="token punctuation">}</span></span>
+          <span class="token attr-name">style</span><span class="token script language-javascript"><span class="token punctuation">=</span><span class="token punctuation">{</span><span class="token punctuation">{</span>
+            flex<span class="token punctuation">:</span> <span class="token number">1</span><span class="token punctuation">,</span>
+            cursor<span class="token punctuation">:</span> <span class="token string">'pointer'</span><span class="token punctuation">,</span>
+            textDecoration<span class="token punctuation">:</span> todo<span class="token punctuation">.</span>done <span class="token operator">?</span> <span class="token string">'line-through'</span> <span class="token punctuation">:</span> <span class="token string">'none'</span><span class="token punctuation">,</span>
+            color<span class="token punctuation">:</span> todo<span class="token punctuation">.</span>done <span class="token operator">?</span> <span class="token string">'#999'</span> <span class="token punctuation">:</span> <span class="token string">'#1e293b'</span><span class="token punctuation">,</span>
+          <span class="token punctuation">}</span><span class="token punctuation">}</span></span>
+        <span class="token punctuation">&gt;</span></span>
+          <span class="token punctuation">{</span>todo<span class="token punctuation">.</span>text<span class="token punctuation">}</span>
+        <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>span</span><span class="token punctuation">&gt;</span></span>
+      <span class="token punctuation">)</span><span class="token punctuation">}</span>
+
+      <span class="token punctuation">{</span><span class="token comment">/* Кнопки: показать в режиме редактирования, иначе — удалить */</span><span class="token punctuation">}</span>
+      <span class="token punctuation">{</span>isEditing <span class="token operator">?</span> <span class="token punctuation">(</span>
+        <span class="token operator">&lt;</span><span class="token operator">&gt;</span>
+          <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>button</span> <span class="token attr-name">onClick</span><span class="token script language-javascript"><span class="token punctuation">=</span><span class="token punctuation">{</span>handleSave<span class="token punctuation">}</span></span> <span class="token attr-name">style</span><span class="token script language-javascript"><span class="token punctuation">=</span><span class="token punctuation">{</span><span class="token punctuation">{</span> cursor<span class="token punctuation">:</span> <span class="token string">'pointer'</span> <span class="token punctuation">}</span><span class="token punctuation">}</span></span><span class="token punctuation">&gt;</span></span>
+            💾
+          <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>button</span><span class="token punctuation">&gt;</span></span>
+          <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>button</span> <span class="token attr-name">onClick</span><span class="token script language-javascript"><span class="token punctuation">=</span><span class="token punctuation">{</span>handleCancel<span class="token punctuation">}</span></span> <span class="token attr-name">style</span><span class="token script language-javascript"><span class="token punctuation">=</span><span class="token punctuation">{</span><span class="token punctuation">{</span> cursor<span class="token punctuation">:</span> <span class="token string">'pointer'</span> <span class="token punctuation">}</span><span class="token punctuation">}</span></span><span class="token punctuation">&gt;</span></span>
+            ✖️
+          <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>button</span><span class="token punctuation">&gt;</span></span>
+        <span class="token operator">&lt;</span><span class="token operator">/</span><span class="token operator">&gt;</span>
+      <span class="token punctuation">)</span> <span class="token punctuation">:</span> <span class="token punctuation">(</span>
+        <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>button</span>
+          <span class="token attr-name">onClick</span><span class="token script language-javascript"><span class="token punctuation">=</span><span class="token punctuation">{</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token operator">=&gt;</span> <span class="token function">onDelete</span><span class="token punctuation">(</span>todo<span class="token punctuation">.</span>id<span class="token punctuation">)</span><span class="token punctuation">}</span></span>
+          <span class="token attr-name">style</span><span class="token script language-javascript"><span class="token punctuation">=</span><span class="token punctuation">{</span><span class="token punctuation">{</span>
+            background<span class="token punctuation">:</span> <span class="token string">'transparent'</span><span class="token punctuation">,</span>
+            border<span class="token punctuation">:</span> <span class="token string">'none'</span><span class="token punctuation">,</span>
+            cursor<span class="token punctuation">:</span> <span class="token string">'pointer'</span><span class="token punctuation">,</span>
+            fontSize<span class="token punctuation">:</span> <span class="token number">18</span><span class="token punctuation">,</span>
+            color<span class="token punctuation">:</span> <span class="token string">'#ef4444'</span><span class="token punctuation">,</span>
+          <span class="token punctuation">}</span><span class="token punctuation">}</span></span>
+        <span class="token punctuation">&gt;</span></span>
+          ✕
+        <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>button</span><span class="token punctuation">&gt;</span></span>
+      <span class="token punctuation">)</span><span class="token punctuation">}</span>
+    <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>li</span><span class="token punctuation">&gt;</span></span>
+  <span class="token punctuation">)</span><span class="token punctuation">;</span>
+<span class="token punctuation">}</span>
+
+<span class="token keyword">export</span> <span class="token keyword">default</span> TodoItem<span class="token punctuation">;</span>
+</code></pre>
+<p><strong>Ключевой момент:</strong> локальное состояние <code>isEditing</code> и <code>editText</code> живёт <strong>внутри</strong> <code>TodoItem</code>. Родителю о процессе редактирования знать не нужно — он получает только финальный <code>onEdit(id, text)</code>. Это хороший пример <strong>инкапсуляции</strong>.</p>
+<h3 id="srccomponentstodolist.jsx"><code>src/components/TodoList.jsx</code></h3>
+<pre class=" language-jsx"><code class="prism  language-jsx"><span class="token keyword">import</span> TodoItem <span class="token keyword">from</span> <span class="token string">'./TodoItem'</span><span class="token punctuation">;</span>
+
+<span class="token keyword">function</span> <span class="token function">TodoList</span><span class="token punctuation">(</span><span class="token punctuation">{</span> todos<span class="token punctuation">,</span> onToggle<span class="token punctuation">,</span> onDelete<span class="token punctuation">,</span> onEdit <span class="token punctuation">}</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+  <span class="token comment">// Обработка пустого состояния</span>
+  <span class="token keyword">if</span> <span class="token punctuation">(</span>todos<span class="token punctuation">.</span>length <span class="token operator">===</span> <span class="token number">0</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+    <span class="token keyword">return</span> <span class="token punctuation">(</span>
+      <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>p</span> <span class="token attr-name">style</span><span class="token script language-javascript"><span class="token punctuation">=</span><span class="token punctuation">{</span><span class="token punctuation">{</span> textAlign<span class="token punctuation">:</span> <span class="token string">'center'</span><span class="token punctuation">,</span> color<span class="token punctuation">:</span> <span class="token string">'#999'</span><span class="token punctuation">,</span> padding<span class="token punctuation">:</span> <span class="token number">40</span> <span class="token punctuation">}</span><span class="token punctuation">}</span></span><span class="token punctuation">&gt;</span></span>
+        Здесь пусто 🎉
+      <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>p</span><span class="token punctuation">&gt;</span></span>
+    <span class="token punctuation">)</span><span class="token punctuation">;</span>
+  <span class="token punctuation">}</span>
+
+  <span class="token keyword">return</span> <span class="token punctuation">(</span>
+    <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>ul</span> <span class="token attr-name">style</span><span class="token script language-javascript"><span class="token punctuation">=</span><span class="token punctuation">{</span><span class="token punctuation">{</span> listStyle<span class="token punctuation">:</span> <span class="token string">'none'</span><span class="token punctuation">,</span> padding<span class="token punctuation">:</span> <span class="token number">0</span><span class="token punctuation">,</span> margin<span class="token punctuation">:</span> <span class="token number">0</span> <span class="token punctuation">}</span><span class="token punctuation">}</span></span><span class="token punctuation">&gt;</span></span>
+      <span class="token punctuation">{</span>todos<span class="token punctuation">.</span><span class="token function">map</span><span class="token punctuation">(</span><span class="token punctuation">(</span>todo<span class="token punctuation">)</span> <span class="token operator">=&gt;</span> <span class="token punctuation">(</span>
+        <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>TodoItem</span>
+          <span class="token attr-name">key</span><span class="token script language-javascript"><span class="token punctuation">=</span><span class="token punctuation">{</span>todo<span class="token punctuation">.</span>id<span class="token punctuation">}</span></span>
+          <span class="token attr-name">todo</span><span class="token script language-javascript"><span class="token punctuation">=</span><span class="token punctuation">{</span>todo<span class="token punctuation">}</span></span>
+          <span class="token attr-name">onToggle</span><span class="token script language-javascript"><span class="token punctuation">=</span><span class="token punctuation">{</span>onToggle<span class="token punctuation">}</span></span>
+          <span class="token attr-name">onDelete</span><span class="token script language-javascript"><span class="token punctuation">=</span><span class="token punctuation">{</span>onDelete<span class="token punctuation">}</span></span>
+          <span class="token attr-name">onEdit</span><span class="token script language-javascript"><span class="token punctuation">=</span><span class="token punctuation">{</span>onEdit<span class="token punctuation">}</span></span>
+        <span class="token punctuation">/&gt;</span></span>
+      <span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">}</span>
+    <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>ul</span><span class="token punctuation">&gt;</span></span>
+  <span class="token punctuation">)</span><span class="token punctuation">;</span>
+<span class="token punctuation">}</span>
+
+<span class="token keyword">export</span> <span class="token keyword">default</span> TodoList<span class="token punctuation">;</span>
+</code></pre>
+<h3 id="srcapp.jsx-1"><code>src/App.jsx</code></h3>
+<pre class=" language-jsx"><code class="prism  language-jsx"><span class="token keyword">import</span> <span class="token punctuation">{</span> useState <span class="token punctuation">}</span> <span class="token keyword">from</span> <span class="token string">'react'</span><span class="token punctuation">;</span>
+<span class="token keyword">import</span> TodoForm <span class="token keyword">from</span> <span class="token string">'./components/TodoForm'</span><span class="token punctuation">;</span>
+<span class="token keyword">import</span> Filters <span class="token keyword">from</span> <span class="token string">'./components/Filters'</span><span class="token punctuation">;</span>
+<span class="token keyword">import</span> TodoList <span class="token keyword">from</span> <span class="token string">'./components/TodoList'</span><span class="token punctuation">;</span>
+
+<span class="token keyword">function</span> <span class="token function">App</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+  <span class="token comment">// ---- Состояние ----</span>
+  <span class="token keyword">const</span> <span class="token punctuation">[</span>todos<span class="token punctuation">,</span> setTodos<span class="token punctuation">]</span> <span class="token operator">=</span> <span class="token function">useState</span><span class="token punctuation">(</span><span class="token punctuation">[</span>
+    <span class="token punctuation">{</span> id<span class="token punctuation">:</span> <span class="token number">1</span><span class="token punctuation">,</span> text<span class="token punctuation">:</span> <span class="token string">'Изучить useState'</span><span class="token punctuation">,</span> done<span class="token punctuation">:</span> <span class="token boolean">true</span><span class="token punctuation">,</span> priority<span class="token punctuation">:</span> <span class="token string">'high'</span> <span class="token punctuation">}</span><span class="token punctuation">,</span>
+    <span class="token punctuation">{</span> id<span class="token punctuation">:</span> <span class="token number">2</span><span class="token punctuation">,</span> text<span class="token punctuation">:</span> <span class="token string">'Разобраться со списками'</span><span class="token punctuation">,</span> done<span class="token punctuation">:</span> <span class="token boolean">false</span><span class="token punctuation">,</span> priority<span class="token punctuation">:</span> <span class="token string">'medium'</span> <span class="token punctuation">}</span><span class="token punctuation">,</span>
+    <span class="token punctuation">{</span> id<span class="token punctuation">:</span> <span class="token number">3</span><span class="token punctuation">,</span> text<span class="token punctuation">:</span> <span class="token string">'Сделать todo'</span><span class="token punctuation">,</span> done<span class="token punctuation">:</span> <span class="token boolean">false</span><span class="token punctuation">,</span> priority<span class="token punctuation">:</span> <span class="token string">'low'</span> <span class="token punctuation">}</span><span class="token punctuation">,</span>
+  <span class="token punctuation">]</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+  <span class="token keyword">const</span> <span class="token punctuation">[</span>filter<span class="token punctuation">,</span> setFilter<span class="token punctuation">]</span> <span class="token operator">=</span> <span class="token function">useState</span><span class="token punctuation">(</span><span class="token string">'all'</span><span class="token punctuation">)</span><span class="token punctuation">;</span> <span class="token comment">// 'all' | 'active' | 'done'</span>
+
+  <span class="token comment">// ---- Колбэки для детей ----</span>
+
+  <span class="token keyword">function</span> <span class="token function">addTodo</span><span class="token punctuation">(</span><span class="token punctuation">{</span> text<span class="token punctuation">,</span> priority <span class="token punctuation">}</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+    <span class="token keyword">const</span> newTodo <span class="token operator">=</span> <span class="token punctuation">{</span>
+      id<span class="token punctuation">:</span> Date<span class="token punctuation">.</span><span class="token function">now</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">,</span>
+      text<span class="token punctuation">,</span>
+      priority<span class="token punctuation">,</span>
+      done<span class="token punctuation">:</span> <span class="token boolean">false</span><span class="token punctuation">,</span>
+    <span class="token punctuation">}</span><span class="token punctuation">;</span>
+    <span class="token function">setTodos</span><span class="token punctuation">(</span><span class="token punctuation">(</span>prev<span class="token punctuation">)</span> <span class="token operator">=&gt;</span> <span class="token punctuation">[</span><span class="token operator">...</span>prev<span class="token punctuation">,</span> newTodo<span class="token punctuation">]</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+  <span class="token punctuation">}</span>
+
+  <span class="token keyword">function</span> <span class="token function">toggleTodo</span><span class="token punctuation">(</span>id<span class="token punctuation">)</span> <span class="token punctuation">{</span>
+    <span class="token function">setTodos</span><span class="token punctuation">(</span><span class="token punctuation">(</span>prev<span class="token punctuation">)</span> <span class="token operator">=&gt;</span>
+      prev<span class="token punctuation">.</span><span class="token function">map</span><span class="token punctuation">(</span><span class="token punctuation">(</span>t<span class="token punctuation">)</span> <span class="token operator">=&gt;</span> <span class="token punctuation">(</span>t<span class="token punctuation">.</span>id <span class="token operator">===</span> id <span class="token operator">?</span> <span class="token punctuation">{</span> <span class="token operator">...</span>t<span class="token punctuation">,</span> done<span class="token punctuation">:</span> <span class="token operator">!</span>t<span class="token punctuation">.</span>done <span class="token punctuation">}</span> <span class="token punctuation">:</span> t<span class="token punctuation">)</span><span class="token punctuation">)</span>
+    <span class="token punctuation">)</span><span class="token punctuation">;</span>
+  <span class="token punctuation">}</span>
+
+  <span class="token keyword">function</span> <span class="token function">deleteTodo</span><span class="token punctuation">(</span>id<span class="token punctuation">)</span> <span class="token punctuation">{</span>
+    <span class="token function">setTodos</span><span class="token punctuation">(</span><span class="token punctuation">(</span>prev<span class="token punctuation">)</span> <span class="token operator">=&gt;</span> prev<span class="token punctuation">.</span><span class="token function">filter</span><span class="token punctuation">(</span><span class="token punctuation">(</span>t<span class="token punctuation">)</span> <span class="token operator">=&gt;</span> t<span class="token punctuation">.</span>id <span class="token operator">!==</span> id<span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+  <span class="token punctuation">}</span>
+
+  <span class="token keyword">function</span> <span class="token function">editTodo</span><span class="token punctuation">(</span>id<span class="token punctuation">,</span> newText<span class="token punctuation">)</span> <span class="token punctuation">{</span>
+    <span class="token function">setTodos</span><span class="token punctuation">(</span><span class="token punctuation">(</span>prev<span class="token punctuation">)</span> <span class="token operator">=&gt;</span>
+      prev<span class="token punctuation">.</span><span class="token function">map</span><span class="token punctuation">(</span><span class="token punctuation">(</span>t<span class="token punctuation">)</span> <span class="token operator">=&gt;</span> <span class="token punctuation">(</span>t<span class="token punctuation">.</span>id <span class="token operator">===</span> id <span class="token operator">?</span> <span class="token punctuation">{</span> <span class="token operator">...</span>t<span class="token punctuation">,</span> text<span class="token punctuation">:</span> newText <span class="token punctuation">}</span> <span class="token punctuation">:</span> t<span class="token punctuation">)</span><span class="token punctuation">)</span>
+    <span class="token punctuation">)</span><span class="token punctuation">;</span>
+  <span class="token punctuation">}</span>
+
+  <span class="token comment">// ---- Вычисляемые данные ----</span>
+
+  <span class="token comment">// Подсчёты (пересчитываются при каждом рендере — это нормально для маленьких списков)</span>
+  <span class="token keyword">const</span> counts <span class="token operator">=</span> <span class="token punctuation">{</span>
+    all<span class="token punctuation">:</span> todos<span class="token punctuation">.</span>length<span class="token punctuation">,</span>
+    active<span class="token punctuation">:</span> todos<span class="token punctuation">.</span><span class="token function">filter</span><span class="token punctuation">(</span><span class="token punctuation">(</span>t<span class="token punctuation">)</span> <span class="token operator">=&gt;</span> <span class="token operator">!</span>t<span class="token punctuation">.</span>done<span class="token punctuation">)</span><span class="token punctuation">.</span>length<span class="token punctuation">,</span>
+    done<span class="token punctuation">:</span> todos<span class="token punctuation">.</span><span class="token function">filter</span><span class="token punctuation">(</span><span class="token punctuation">(</span>t<span class="token punctuation">)</span> <span class="token operator">=&gt;</span> t<span class="token punctuation">.</span>done<span class="token punctuation">)</span><span class="token punctuation">.</span>length<span class="token punctuation">,</span>
+  <span class="token punctuation">}</span><span class="token punctuation">;</span>
+
+  <span class="token comment">// Отфильтрованный список по текущему фильтру.</span>
+  <span class="token comment">// Логика: для 'all' — все; 'active' — только невыполненные; 'done' — только выполненные.</span>
+  <span class="token keyword">const</span> visibleTodos <span class="token operator">=</span> todos<span class="token punctuation">.</span><span class="token function">filter</span><span class="token punctuation">(</span><span class="token punctuation">(</span>t<span class="token punctuation">)</span> <span class="token operator">=&gt;</span> <span class="token punctuation">{</span>
+    <span class="token keyword">if</span> <span class="token punctuation">(</span>filter <span class="token operator">===</span> <span class="token string">'active'</span><span class="token punctuation">)</span> <span class="token keyword">return</span> <span class="token operator">!</span>t<span class="token punctuation">.</span>done<span class="token punctuation">;</span>
+    <span class="token keyword">if</span> <span class="token punctuation">(</span>filter <span class="token operator">===</span> <span class="token string">'done'</span><span class="token punctuation">)</span> <span class="token keyword">return</span> t<span class="token punctuation">.</span>done<span class="token punctuation">;</span>
+    <span class="token keyword">return</span> <span class="token boolean">true</span><span class="token punctuation">;</span> <span class="token comment">// 'all'</span>
+  <span class="token punctuation">}</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+
+  <span class="token keyword">return</span> <span class="token punctuation">(</span>
+    <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>div</span> <span class="token attr-name">style</span><span class="token script language-javascript"><span class="token punctuation">=</span><span class="token punctuation">{</span><span class="token punctuation">{</span> maxWidth<span class="token punctuation">:</span> <span class="token number">560</span><span class="token punctuation">,</span> margin<span class="token punctuation">:</span> <span class="token string">'40px auto'</span><span class="token punctuation">,</span> padding<span class="token punctuation">:</span> <span class="token number">20</span> <span class="token punctuation">}</span><span class="token punctuation">}</span></span><span class="token punctuation">&gt;</span></span>
+      <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>h1</span><span class="token punctuation">&gt;</span></span>📝 Todo List<span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>h1</span><span class="token punctuation">&gt;</span></span>
+
+      <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>TodoForm</span> <span class="token attr-name">onAdd</span><span class="token script language-javascript"><span class="token punctuation">=</span><span class="token punctuation">{</span>addTodo<span class="token punctuation">}</span></span> <span class="token punctuation">/&gt;</span></span>
+
+      <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>Filters</span> <span class="token attr-name">current</span><span class="token script language-javascript"><span class="token punctuation">=</span><span class="token punctuation">{</span>filter<span class="token punctuation">}</span></span> <span class="token attr-name">onChange</span><span class="token script language-javascript"><span class="token punctuation">=</span><span class="token punctuation">{</span>setFilter<span class="token punctuation">}</span></span> <span class="token attr-name">counts</span><span class="token script language-javascript"><span class="token punctuation">=</span><span class="token punctuation">{</span>counts<span class="token punctuation">}</span></span> <span class="token punctuation">/&gt;</span></span>
+
+      <span class="token punctuation">{</span><span class="token comment">/* Условный рендер: если фильтр "done" и задач нет — особое сообщение */</span><span class="token punctuation">}</span>
+      <span class="token punctuation">{</span>filter <span class="token operator">===</span> <span class="token string">'done'</span> <span class="token operator">&amp;&amp;</span> visibleTodos<span class="token punctuation">.</span>length <span class="token operator">===</span> <span class="token number">0</span> <span class="token operator">&amp;&amp;</span> counts<span class="token punctuation">.</span>all <span class="token operator">&gt;</span> <span class="token number">0</span> <span class="token operator">&amp;&amp;</span> <span class="token punctuation">(</span>
+        <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>p</span> <span class="token attr-name">style</span><span class="token script language-javascript"><span class="token punctuation">=</span><span class="token punctuation">{</span><span class="token punctuation">{</span> color<span class="token punctuation">:</span> <span class="token string">'#f59e0b'</span><span class="token punctuation">,</span> fontStyle<span class="token punctuation">:</span> <span class="token string">'italic'</span> <span class="token punctuation">}</span><span class="token punctuation">}</span></span><span class="token punctuation">&gt;</span></span>
+          Пока нет выполненных задач<span class="token punctuation">.</span> Отметь что<span class="token operator">-</span>нибудь ✅
+        <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>p</span><span class="token punctuation">&gt;</span></span>
+      <span class="token punctuation">)</span><span class="token punctuation">}</span>
+
+      <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>TodoList</span>
+        <span class="token attr-name">todos</span><span class="token script language-javascript"><span class="token punctuation">=</span><span class="token punctuation">{</span>visibleTodos<span class="token punctuation">}</span></span>
+        <span class="token attr-name">onToggle</span><span class="token script language-javascript"><span class="token punctuation">=</span><span class="token punctuation">{</span>toggleTodo<span class="token punctuation">}</span></span>
+        <span class="token attr-name">onDelete</span><span class="token script language-javascript"><span class="token punctuation">=</span><span class="token punctuation">{</span>deleteTodo<span class="token punctuation">}</span></span>
+        <span class="token attr-name">onEdit</span><span class="token script language-javascript"><span class="token punctuation">=</span><span class="token punctuation">{</span>editTodo<span class="token punctuation">}</span></span>
+      <span class="token punctuation">/&gt;</span></span>
+    <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>div</span><span class="token punctuation">&gt;</span></span>
+  <span class="token punctuation">)</span><span class="token punctuation">;</span>
+<span class="token punctuation">}</span>
+
+<span class="token keyword">export</span> <span class="token keyword">default</span> App<span class="token punctuation">;</span>
+</code></pre>
+<h3 id="srcindex.css"><code>src/index.css</code></h3>
+<pre class=" language-css"><code class="prism  language-css"><span class="token selector">* </span><span class="token punctuation">{</span> <span class="token property">box-sizing</span><span class="token punctuation">:</span> border-box<span class="token punctuation">;</span> <span class="token punctuation">}</span>
+
+<span class="token selector">body </span><span class="token punctuation">{</span>
+  <span class="token property">margin</span><span class="token punctuation">:</span> <span class="token number">0</span><span class="token punctuation">;</span>
+  <span class="token property">font-family</span><span class="token punctuation">:</span> system-ui, -apple-system, sans-serif<span class="token punctuation">;</span>
+  <span class="token property">background</span><span class="token punctuation">:</span> <span class="token hexcode">#f8fafc</span><span class="token punctuation">;</span>
+  <span class="token property">color</span><span class="token punctuation">:</span> <span class="token hexcode">#1e293b</span><span class="token punctuation">;</span>
+<span class="token punctuation">}</span>
+
+<span class="token selector">button<span class="token pseudo-class">:hover</span> </span><span class="token punctuation">{</span> <span class="token property">opacity</span><span class="token punctuation">:</span> <span class="token number">0.85</span><span class="token punctuation">;</span> <span class="token punctuation">}</span>
+</code></pre>
+<hr>
+<h2 id="🔍-разбор-потока-данных">🔍 Разбор потока данных</h2>
+<pre><code>App (state: todos, filter)
+  │
+  ├── TodoForm     ← onAdd={addTodo}
+  │       → вызывает addTodo({ text, priority }) при сабмите
+  │
+  ├── Filters      ← current={filter}, onChange={setFilter}, counts
+  │       → вызывает setFilter('active') при клике
+  │
+  └── TodoList     ← todos={visibleTodos}, onToggle, onDelete, onEdit
+        │
+        └── TodoItem ← todo={todo}, onToggle, onDelete, onEdit
+              │
+              └── TodoItem имеет СВОЁ локальное состояние isEditing
+</code></pre>
+<p><strong>Принципы:</strong></p>
+<ol>
+<li><strong><code>App</code> владеет всем глобальным состоянием</strong> (<code>todos</code>, <code>filter</code>)</li>
+<li><strong>Дети получают данные через пропсы, изменения — через колбэки</strong></li>
+<li><strong>Локальное состояние (<code>isEditing</code>) живёт там, где нужно</strong> — в <code>TodoItem</code></li>
+<li><strong>Производные данные (<code>visibleTodos</code>, <code>counts</code>) считаются в рендере</strong>, не хранятся отдельно</li>
+</ol>
+<p>Это классическая архитектура React-приложения.</p>
+<hr>
+<h2 id="🏋️-упражнения-для-закрепления">🏋️ Упражнения для закрепления</h2>
+<h3 id="часть--3">Часть  3</h3>
+<ol>
+<li><strong>Счётчик с шагом</strong>: две кнопки <code>+1</code> и <code>-1</code>, инпут для шага. Счётчик меняется на значение шага.</li>
+<li><strong>Переключатель темы</strong>: кнопка, меняющая <code>light</code> / <code>dark</code>. Фон и цвет текста зависят от состояния.</li>
+<li><strong>Форма логина</strong>: email + пароль. Кнопка <code>Войти</code> активна только когда оба поля заполнены. При сабмите — <code>alert</code>.</li>
+<li><strong>Список покупок</strong>: инпут + кнопка. Добавляй товары в массив, позволяй удалять.</li>
+</ol>
+<h3 id="часть-4">Часть 4</h3>
+<ol start="5">
+<li><strong>Фильтр по приоритету</strong>: добавь в todo ещё один набор фильтров по <code>priority</code>.</li>
+<li><strong>Сортировка</strong>: кнопка, переключающая сортировку по алфавиту / по дате добавления.</li>
+<li><strong>Поиск</strong>: инпут, фильтрующий задачи по подстроке (регистронезависимо).</li>
+<li><strong>Счётчик выполненных</strong>: прогресс-бар, показывающий <code>done/total</code> в процентах.</li>
+<li><strong>Редактирование с валидацией</strong>: не позволяй сохранить пустое название в <code>TodoItem</code>.</li>
+<li><strong>Массовые операции</strong>: кнопки «Отметить все», «Удалить выполненные», «Очистить всё».</li>
+</ol>
+<hr>
+<h2 id="📋-чек-лист-самопроверки">📋 Чек-лист самопроверки</h2>
+<p><strong>Часть 3:</strong></p>
+<ul>
+<li class="task-list-item"><input type="checkbox" class="task-list-item-checkbox" disabled=""> Понимаю, что <code>useState</code> возвращает массив <code>[значение, сеттер]</code></li>
+<li class="task-list-item"><input type="checkbox" class="task-list-item-checkbox" disabled=""> Знаю правила хуков (только верхний уровень)</li>
+<li class="task-list-item"><input type="checkbox" class="task-list-item-checkbox" disabled=""> Использую функциональное обновление при зависимости от предыдущего</li>
+<li class="task-list-item"><input type="checkbox" class="task-list-item-checkbox" disabled=""> Не мутирую состояние — создаю новое через spread / map / filter</li>
+<li class="task-list-item"><input type="checkbox" class="task-list-item-checkbox" disabled=""> Умею делать управляемые инпуты всех типов</li>
+<li class="task-list-item"><input type="checkbox" class="task-list-item-checkbox" disabled=""> Знаю, зачем <code>e.preventDefault()</code> в <code>onSubmit</code></li>
+<li class="task-list-item"><input type="checkbox" class="task-list-item-checkbox" disabled=""> Передаю функции через пропсы, не вызываю их</li>
+</ul>
+<p><strong>Часть  4:</strong></p>
+<ul>
+<li class="task-list-item"><input type="checkbox" class="task-list-item-checkbox" disabled=""> Всегда ставлю <code>key</code> в списках, не <code>index</code> (кроме крайних случаев)</li>
+<li class="task-list-item"><input type="checkbox" class="task-list-item-checkbox" disabled=""> Знаю 4 способа условного рендера (&amp;&amp;, тернарник, ранний return, словарь)</li>
+<li class="task-list-item"><input type="checkbox" class="task-list-item-checkbox" disabled=""> Осторожен с <code>&amp;&amp;</code> и числами</li>
+<li class="task-list-item"><input type="checkbox" class="task-list-item-checkbox" disabled=""> Умею использовать разные способы стилизации</li>
+<li class="task-list-item"><input type="checkbox" class="task-list-item-checkbox" disabled=""> Понимаю, где хранить состояние: глобальное — в родителе, локальное — в ребёнке</li>
+<li class="task-list-item"><input type="checkbox" class="task-list-item-checkbox" disabled=""> Вычисляю производные данные в рендере, а не дублирую в state</li>
+</ul>
+</div>
+</body>
+
+</html>

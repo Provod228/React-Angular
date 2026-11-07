@@ -1,0 +1,219 @@
+/*
+  Тема (упражнение 2): переменные из index.css переопределяем по data-theme на <html>.
+  Селектор с атрибутом сильнее, чем :root внутри @media (prefers-color-scheme),
+  поэтому выбор пользователя побеждает системную тему.
+*/
+:root[data-theme='light'] {
+  --text: #6b6375;
+  --text-h: #08060d;
+  --bg: #fff;
+  --border: #e5e4e7;
+  --code-bg: #f4f3ec;
+  --accent: #aa3bff;
+  --accent-bg: rgba(170, 59, 255, 0.1);
+  --accent-border: rgba(170, 59, 255, 0.5);
+  color-scheme: light;
+}
+
+:root[data-theme='dark'] {
+  --text: #9ca3af;
+  --text-h: #f3f4f6;
+  --bg: #16171d;
+  --border: #2e303a;
+  --code-bg: #1f2028;
+  --accent: #c084fc;
+  --accent-bg: rgba(192, 132, 252, 0.15);
+  --accent-border: rgba(192, 132, 252, 0.5);
+  color-scheme: dark;
+}
+
+/* ---------- Каркас ---------- */
+
+.layout {
+  text-align: left;
+}
+
+.header {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 16px;
+  border-bottom: 1px solid var(--border);
+}
+
+.nav {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+}
+
+.nav__link {
+  padding: 6px 12px;
+  font-size: 15px;
+  color: var(--text-h);
+  text-decoration: none;
+  border-radius: 8px;
+}
+
+.nav__link--active {
+  color: var(--accent);
+  background: var(--accent-bg);
+}
+
+.theme-toggle {
+  padding: 6px 10px;
+  font-size: 18px;
+  line-height: 1;
+  background: transparent;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  cursor: pointer;
+}
+
+.main {
+  max-width: 700px;
+  margin: 0 auto;
+  padding: 0 16px 40px;
+}
+
+.main h1 {
+  font-size: 40px;
+  margin: 24px 0 8px;
+}
+
+/* ---------- Общие элементы ---------- */
+
+a {
+  color: var(--accent);
+}
+
+.stack {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.stack--center {
+  align-items: center;
+  text-align: center;
+}
+
+.row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  align-items: center;
+}
+
+.card {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding: 20px;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+}
+
+.card h2 {
+  margin: 0;
+}
+
+.card--link {
+  gap: 4px;
+  text-decoration: none;
+  transition: border-color 0.2s;
+}
+
+.card--link:hover {
+  border-color: var(--accent-border);
+}
+
+.cards {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.list {
+  margin: 0;
+  padding-left: 22px;
+  color: var(--text-h);
+}
+
+.list li + li {
+  margin-top: 6px;
+}
+
+.input {
+  padding: 10px;
+  font: inherit;
+  font-size: 15px;
+  color: var(--text-h);
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  box-sizing: border-box;
+}
+
+.input--auto {
+  width: auto;
+}
+
+.btn {
+  padding: 8px 18px;
+  font: inherit;
+  font-size: 15px;
+  color: #fff;
+  background: var(--accent);
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+}
+
+.btn--ghost {
+  color: var(--text-h);
+  background: transparent;
+  border: 1px solid var(--border);
+}
+
+.btn--danger {
+  background: #ef4444;
+}
+
+.muted {
+  font-size: 14px;
+  color: var(--text);
+}
+
+.muted--pending {
+  color: #f59e0b;
+}
+
+.big-number {
+  font-size: 48px;
+  font-weight: 600;
+  color: var(--text-h);
+}
+
+.alert {
+  padding: 10px 14px;
+  color: #b45309;
+  background: rgba(245, 158, 11, 0.12);
+  border-radius: 8px;
+}
+
+.breadcrumbs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-top: 16px;
+  font-size: 14px;
+}
+
+.breadcrumbs__sep {
+  color: var(--text);
+}

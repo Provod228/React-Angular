@@ -1,0 +1,27 @@
+<!doctype html>
+<html lang="ru">
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>my-app3</title>
+    <!--
+      Упражнение 2 («без мигания»): ставим тему ДО загрузки React.
+      Иначе страница сначала отрисуется в теме по умолчанию,
+      а через мгновение React переключит её — это и есть «мигание».
+      Ключ и формат (JSON) — те же, что у useLocalStorage в ThemeToggle.
+    -->
+    <script>
+      try {
+        var theme = JSON.parse(localStorage.getItem('app3:theme'));
+        if (theme === 'light' || theme === 'dark') {
+          document.documentElement.dataset.theme = theme;
+        }
+      } catch (e) {}
+    </script>
+  </head>
+  <body>
+    <div id="root"></div>
+    <script type="module" src="/src/main.tsx"></script>
+  </body>
+</html>
