@@ -1,0 +1,17 @@
+<div class="card">
+  <!-- Интерполяция {{ }} выводит значение из класса компонента -->
+  <h2>{{ product.name }}</h2>
+
+  <!-- Выводим цену. Можно использовать валютный пайп (| currency),
+       но для простоты оставим так -->
+  <p class="price">Цена: {{ product.price }} ₽</p>
+
+  <!-- Условный вывод: если description существует, показываем его -->
+  <!-- @if - это современный синтаксис Angular (начиная с v17) -->
+  @if (product.description) {
+    <p class="desc">{{ product.description }}</p>
+  }
+
+  <!-- Вызов метода из класса -->
+  <small>{{ getProductInfo() }}</small>
+</div>

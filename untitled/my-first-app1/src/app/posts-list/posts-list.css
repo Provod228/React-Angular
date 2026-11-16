@@ -1,0 +1,27 @@
+.posts-container {
+  max-width: 800px;
+  margin: 20px auto;
+  font-family: sans-serif;
+}
+.post-card {
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  padding: 16px;
+  margin-bottom: 16px;
+  background: #fafafa;
+}
+.post-card h3 {
+  margin-top: 0;
+  color: #333;
+  text-transform: capitalize;
+}
+.loading {
+  color: #666;
+  font-style: italic;
+}
+.error {
+  color: #d32f2f;
+  background: #ffebee;
+  padding: 12px;
+  border-radius: 4px;
+}

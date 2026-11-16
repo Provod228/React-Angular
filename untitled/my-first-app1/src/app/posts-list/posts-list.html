@@ -1,0 +1,30 @@
+<div class="posts-container">
+  <h2>Список постов</h2>
+
+  <!-- Состояние загрузки -->
+  @if (isLoading()) {
+    <p class="loading">Загрузка...</p>
+  }
+
+  <!-- Состояние ошибки -->
+  @if (errorMessage) {
+    <p class="error">{{ errorMessage }}</p>
+  }
+
+  <!-- Список постов. @for используется вместо *ngFor -->
+  @for (post of posts(); track post.id) {
+    <div class="post-card">
+      <h3>{{ post.title }}</h3>
+      <p>{{ post.body }}</p>
+      <small>ID: {{ post.id }}</small>
+      <button type="submit" (click)="deletePost(post.id)">
+        Удалить
+      </button>
+    </div>
+  } @empty {
+    <!-- Если массив пуст (например, пришли пустые данные) -->
+    @if (!isLoading() && !errorMessage) {
+      <p>Постов пока нет.</p>
+    }
+  }
+</div>

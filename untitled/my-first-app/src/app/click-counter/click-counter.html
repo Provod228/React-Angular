@@ -1,0 +1,17 @@
+<div class="card">
+  <!-- Интерполяция {{ }} выводит значение из класса компонента -->
+  <h2>Кликер</h2>
+
+  <!-- Условный вывод: если description существует, показываем его -->
+  <!-- @if - это современный синтаксис Angular (начиная с v17) -->
+  @if (count > 5) {
+    <p>Вы кликнули много раз!</p>
+  } @else if (count < 0) {
+    <p>Счётчик ушёл в минус</p>
+  } @else {
+    <p>{{ count }}</p>
+  }
+
+  <button class="delete-btn" (click)="addCount()">+</button>
+  <button class="delete-btn" (click)="reduceCount()">-</button>
+</div>
